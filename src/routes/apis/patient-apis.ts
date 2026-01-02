@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { and, count, desc, eq, ilike, inArray, isNull, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '@/db';
-import { billSchema, doctorSchema, patientSchema, patientTestsSchema, testSchema } from '@/db/schema';
+import { billSchema, doctorSchema, patientSchema, patientTestsSchema, reportSchema, testResultsSchema, testSchema } from '@/db/schema';
 import { checkPermission, getLabIdFromRequest, getUserFromRequest } from './helpers';
 
 // ============================================
@@ -203,8 +203,9 @@ export const createPatientWithTests = createServerFn({ method: 'POST' })
         patientData = updated;
       }
 
-      // Generate invoice number with labId prefix
-      const invoiceNumber = `INV-${labId}-${Date.now()}-${patientId}`;
+      // Generate invoice number with labId prefix (ensure patientId is always defined)
+      const finalPatientId = patientId || 0;
+      const invoiceNumber = `INV-${labId}-${Date.now()}-${finalPatientId}`;
 
       // Create bill with labId
       const [bill] = await db
@@ -577,15 +578,58 @@ export const bulkDeletePatients = createServerFn({ method: 'POST' })
       }
 
       // Delete related records first (cascading delete)
-      // Step 1: Delete bills linked to these patients
-      await db
-        .delete(billSchema)
+      // Step 1: Get all patient tests to find associated test results and reports
+      const patientTestsToDelete = await db
+        .select({ id: patientTestsSchema.id })
+        .from(patientTestsSchema)
+        .where(inArray(patientTestsSchema.patientId, data.ids));
+
+      const patientTestIds = patientTestsToDelete.map(pt => pt.id);
+
+      // Step 2: Get bills to delete
+      const billsToDelete = await db
+        .select({ id: billSchema.id })
+        .from(billSchema)
         .where(inArray(billSchema.patientId, data.ids));
 
-      // Step 2: Delete patient tests (this will cascade to testResults)
-      await db
-        .delete(patientTestsSchema)
-        .where(inArray(patientTestsSchema.patientId, data.ids));
+      const billIds = billsToDelete.map(b => b.id);
+
+      // Step 3: Delete test results first (depends on patientTests)
+      if (patientTestIds.length > 0) {
+        await db
+          .delete(testResultsSchema)
+          .where(inArray(testResultsSchema.patientTestId, patientTestIds));
+      }
+
+      // Step 4: Delete reports linked to patient tests and bills
+      if (patientTestIds.length > 0 || billIds.length > 0) {
+        const conditions = [];
+        if (patientTestIds.length > 0) {
+          conditions.push(inArray(reportSchema.patientTestId, patientTestIds));
+        }
+        if (billIds.length > 0) {
+          conditions.push(inArray(reportSchema.billId, billIds));
+        }
+        if (conditions.length > 0) {
+          await db
+            .delete(reportSchema)
+            .where(or(...conditions));
+        }
+      }
+
+      // Step 5: Delete bills linked to these patients
+      if (billIds.length > 0) {
+        await db
+          .delete(billSchema)
+          .where(inArray(billSchema.patientId, data.ids));
+      }
+
+      // Step 6: Delete patient tests
+      if (patientTestIds.length > 0) {
+        await db
+          .delete(patientTestsSchema)
+          .where(inArray(patientTestsSchema.patientId, data.ids));
+      }
 
       // Hard delete patients from database
       await db

@@ -12,6 +12,7 @@ const MENU_ITEMS = [
   { to: '/test-parameters', label: 'Parameters' },
   { to: '/doctors', label: 'Doctors' },
   { to: '/lab-management', label: 'Lab Management' },
+  { to: '/more', label: 'More', isDropdown: true },
 ];
 
 export function Navigation() {
@@ -57,53 +58,59 @@ export function Navigation() {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-1">
-              {MENU_ITEMS.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  active={location.pathname === item.to}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              {MENU_ITEMS.map((item) => {
+                if (item.isDropdown) {
+                  return (
+                    <div key={item.to} className="relative">
+                      <Button
+                        onClick={() => setShowMore((v) => !v)}
+                        className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md flex items-center gap-1 hover:bg-blue-700"
+                      >
+                        {item.label}
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} />
+                      </Button>
+                      {showMore && (
+                        <div className="absolute left-0 mt-2 w-56 bg-white border-2 border-gray-300 rounded-lg shadow-2xl py-3 z-50 space-y-1">
+                          {user?.isAdmin && (
+                            <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/admin/user-management' }); }}>
+                              👤 User Management
+                            </DropdownButton>
+                          )}
+                          <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/dashboard' }); }}>
+                            📊 Dashboard
+                          </DropdownButton>
+                          {user?.isAdmin && (
+                            <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/lab-details' }); }}>
+                              🏥 Lab Details
+                            </DropdownButton>
+                          )}
+                          <div className="border-t border-gray-300 my-2" />
+                          <DropdownButton onClick={() => { setShowMore(false); handleLogout(); }} danger>
+                            <LogOut className="w-4 h-4 mr-2 inline" />
+                            Logout
+                          </DropdownButton>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    active={location.pathname === item.to}
+                  >
+                    {item.label}
+                  </NavLink>
+                );
+              })}
             </div>
 
-            {/* User Info & Actions */}
+            {/* User Info */}
             <div className="hidden lg:flex items-center gap-4">
               <div className="text-right pr-4 border-r border-gray-200">
                 <div className="text-sm font-medium text-gray-900">{user?.name}</div>
                 <div className="text-xs text-gray-500 capitalize">{user?.role}</div>
-              </div>
-              <div className="relative">
-                <Button
-                  onClick={() => setShowMore((v) => !v)}
-                  className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md flex items-center gap-1"
-                >
-                  More
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} />
-                </Button>
-                {showMore && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-gray-300 rounded-lg shadow-2xl py-3 z-50 space-y-1">
-                    {user?.isAdmin && (
-                      <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/admin/user-management' }); }}>
-                        👤 User Management
-                      </DropdownButton>
-                    )}
-                    <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/dashboard' }); }}>
-                      📊 Dashboard
-                    </DropdownButton>
-                    {user?.isAdmin && (
-                      <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/lab-details' }); }}>
-                        🏥 Lab Details
-                      </DropdownButton>
-                    )}
-                    <div className="border-t border-gray-300 my-2" />
-                    <DropdownButton onClick={handleLogout} danger>
-                      <LogOut className="w-4 h-4 mr-2 inline" />
-                      Logout
-                    </DropdownButton>
-                  </div>
-                )}
               </div>
             </div>
 

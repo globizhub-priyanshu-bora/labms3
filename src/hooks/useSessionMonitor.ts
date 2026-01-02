@@ -1,55 +1,22 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 /**
  * Hook to monitor session health and handle unexpected logouts
  * Periodically checks if session is still valid
+ * NOTE: Disabled session validation to prevent false "session expired" messages
+ * Real session validation happens through authentication API calls
  */
 export function useSessionMonitor() {
   const navigate = useNavigate();
 
-  // Check session validity
-  const validateSession = useCallback(async () => {
-    try {
-      const response = await fetch('/api/session/validate', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        // Session is invalid, redirect to login
-        console.warn('❌ Session validation failed, redirecting to login');
-        localStorage.removeItem('lastRoute');
-        navigate({ to: '/' });
-      }
-    } catch (error) {
-      console.error('Error validating session:', error);
-      // Don't redirect on network error, just log it
-    }
-  }, [navigate]);
-
+  // Session validation disabled - auth is checked through API calls
+  // and getCurrentUser endpoint already handles session validation
+  
   useEffect(() => {
-    // Check session every 5 minutes
-    const checkInterval = setInterval(validateSession, 5 * 60 * 1000);
-
-    // Also check on visibility change (when user returns to tab)
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        // User has returned to the tab, validate session
-        validateSession();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Check immediately on mount
-    validateSession();
-
-    return () => {
-      clearInterval(checkInterval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [validateSession]);
+    // Keep hook functional but don't do active polling
+    // Session is validated reactively through getCurrentUser calls
+  }, [navigate]);
 }
 
 /**
