@@ -5,10 +5,10 @@ import { Layout } from '@/components/Layout';
 import { useAuth } from '@/components/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { createUser, deleteUser, getAllUsers, updateUser } from '@/routes/apis/user-apis';
 import { toast } from '@/lib/toast';
+import { createUser, deleteUser, getAllUsers, updateUser } from '@/routes/apis/user-apis';
 
-export const Route = createFileRoute('/admin/dashboard')({
+export const Route = createFileRoute('/admin/user-management')({
   component: AdminDashboard,
   loader: async () => {
     try {

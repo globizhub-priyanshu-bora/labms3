@@ -48,7 +48,7 @@
 - [x] Improved table layouts
 - [x] Modal dialogs for actions
 - **Files:** 
-  - src/routes/admin/dashboard.tsx
+  - src/routes/admin/user-management.tsx
   - src/routes/doctors/index.tsx
 
 #### 5. Error Handling ✅
@@ -132,7 +132,7 @@
    - Real-time calculations
    - Toast feedback
 
-4. ✅ src/routes/admin/dashboard.tsx (350+ lines)
+4. ✅ src/routes/admin/user-management.tsx (350+ lines)
    - Toast integration
    - Improved form handling
    - Better UI/UX

@@ -19,7 +19,7 @@ This document details all improvements and fixes made to transform this enterpri
 - `src/components/Toast.tsx` - Improved toast component with better styling
 
 **Files Updated to Use Toasts:**
-- `src/routes/admin/dashboard.tsx` - User management operations
+- `src/routes/admin/user-management.tsx` - User management operations
 - `src/routes/doctors/index.tsx` - Doctor CRUD operations
 - `src/components/BillModal.tsx` - Bill creation feedback
 - And other components that previously used `alert()`
@@ -154,7 +154,7 @@ All API calls properly implement:
 1. `src/components/Toast.tsx` - Enhanced toast system
 2. `src/components/ProtectedRoute.tsx` - Better access control
 3. `src/components/BillModal.tsx` - Dynamic bill creation
-4. `src/routes/admin/dashboard.tsx` - Toast integration + improved UI
+4. `src/routes/admin/user-management.tsx` - Toast integration + improved UI
 5. `src/routes/doctors/index.tsx` - Toast integration + improved UI
 
 ## Testing Recommendations

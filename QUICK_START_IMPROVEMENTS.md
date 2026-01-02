@@ -159,7 +159,7 @@ export const getBillById = createServerFn({ method: 'GET' })
 | `src/lib/permission-manager.ts` | Permission & role checking |
 | `src/components/ProtectedRoute.tsx` | Route access control |
 | `src/components/BillModal.tsx` | Dynamic bill creation |
-| `src/routes/admin/dashboard.tsx` | User & permission management |
+| `src/routes/admin/user-management.tsx` | User & permission management |
 | `src/routes/doctors/index.tsx` | Doctor management with toasts |
 
 ## Common Tasks

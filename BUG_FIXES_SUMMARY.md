@@ -47,7 +47,7 @@
 - Try-catch blocks with console logging
 - Proper success/error feedback with toasts
 
-**File Updated**: `src/routes/admin/dashboard.tsx` (380+ lines)
+**File Updated**: `src/routes/admin/user-management.tsx` (380+ lines)
 
 **Key Changes**:
 ```typescript
@@ -162,7 +162,7 @@ if (result.success) {
 
 ```
 ✅ src/components/Navigation.tsx         (RESTRUCTURED - 195 lines)
-✅ src/routes/admin/dashboard.tsx        (REWRITTEN - 380+ lines)
+✅ src/routes/admin/user-management.tsx        (REWRITTEN - 380+ lines)
 ✅ src/routes/patients/register.tsx      (UPDATED - alert → toast)
 ```
 

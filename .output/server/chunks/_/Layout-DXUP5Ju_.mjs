@@ -206,7 +206,7 @@ function Navigation() {
               {
                 onClick: () => {
                   setShowMoreDropdown(false);
-                  navigate({ to: "/admin/dashboard" });
+                  navigate({ to: "/admin/user-management" });
                 },
                 className: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2",
                 children: "��� User Management"
@@ -274,7 +274,7 @@ function Navigation() {
         user?.isAdmin && /* @__PURE__ */ jsx(
           Link,
           {
-            to: "/admin/dashboard",
+            to: "/admin/user-management",
             onClick: () => setShowMobileMenu(false),
             className: "block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md",
             children: "User Management"

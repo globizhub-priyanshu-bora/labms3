@@ -3739,7 +3739,7 @@ const deleteUser = createServerFn({
   }
 });
 const $$splitComponentImporter$2 = () => import("./dashboard-8yvY-zK-.mjs");
-const Route$2 = createFileRoute("/admin/dashboard")({
+const Route$2 = createFileRoute("/admin/user-management")({
   component: lazyRouteComponent($$splitComponentImporter$2, "component"),
   loader: async () => {
     try {
@@ -3892,8 +3892,8 @@ const BillsIdRoute = Route$3.update({
   getParentRoute: () => Route$f
 });
 const AdminDashboardRoute = Route$2.update({
-  id: "/admin/dashboard",
-  path: "/admin/dashboard",
+  id: "/admin/user-management",
+  path: "/admin/user-management",
   getParentRoute: () => Route$f
 });
 const BillsBillIdRoute = Route$1.update({
