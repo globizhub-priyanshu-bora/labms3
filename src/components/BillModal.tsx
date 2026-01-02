@@ -1,226 +1,184 @@
-import { Plus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useToast } from '@/components/Toast';
-import { Label } from '@/components/ui/label';
-import { createBill } from '@/routes/apis/bill-apis';
-import { getAllPatients } from '@/routes/apis/patient-apis';
-import { getAllTests } from '@/routes/apis/test-apis';
+import { X } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from '@/lib/toast';
 
 interface BillModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBillCreated?: () => void;
+  billData?: {
+    bill: any;
+    patient: any;
+    tests: Array<{ test?: any; patientTest?: any; doctor?: any }>;
+  };
 }
 
-interface BillFormData {
-  patientId: number;
-  testIds: number[];
-  discount?: number;
-  tax?: number;
-}
+export function BillModal({ isOpen, onClose, billData }: BillModalProps) {
+  const [isPrinting, setIsPrinting] = useState(false);
 
-interface Patient {
-  id: number;
-  name: string;
-}
+  if (!isOpen || !billData) return null;
 
-interface Test {
-  id: number;
-  name: string;
-  price: string;
-}
-
-export function BillModal({ isOpen, onClose, onBillCreated }: BillModalProps) {
-  const { showToast } = useToast();
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [tests, setTests] = useState<Test[]>([]);
-  const [selectedTests, setSelectedTests] = useState<number[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<BillFormData>();
-
-  useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-  }, [isOpen]);
-
-  const loadData = async () => {
-    try {
-      const [patientsRes, testsRes] = await Promise.all([
-        getAllPatients({ data: { limit: 100, offset: 0 } }),
-        getAllTests({ data: { limit: 100, offset: 0 } }),
-      ]);
-
-      if (patientsRes.success) setPatients(patientsRes.data || []);
-      if (testsRes.success) setTests(testsRes.data || []);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      showToast('Failed to load patient and test data', 'error');
-    }
+  const handlePrint = () => {
+    setIsPrinting(true);
+    setTimeout(() => {
+      window.print();
+      setIsPrinting(false);
+    }, 500);
   };
 
-  const onSubmit = async (data: BillFormData) => {
-    if (selectedTests.length === 0) {
-      showToast('Please select at least one test', 'warning');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const result = await createBill({
-        data: {
-          patientId: data.patientId,
-          testIds: selectedTests,
-          discount: data.discount ? Number(data.discount) : 0,
-          tax: data.tax ? Number(data.tax) : 0,
-        },
-      });
-
-      if (result.success) {
-        showToast('Bill created successfully', 'success');
-        reset();
-        setSelectedTests([]);
-        onClose();
-        onBillCreated?.();
-      } else {
-        showToast('Failed to create bill', 'error');
-      }
-    } catch (error) {
-      console.error('Error creating bill:', error);
-      showToast(error instanceof Error ? error.message : 'Failed to create bill', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleDownloadPDF = () => {
+    toast.success('PDF download feature coming soon');
   };
-
-  if (!isOpen) return null;
 
   const calculateTotal = () => {
-    return selectedTests.reduce((sum, testId) => {
-      const test = tests.find(t => t.id === testId);
-      return sum + (test ? Number(test.price) : 0);
+    return billData.tests.reduce((sum, item) => {
+      return sum + (item.test ? parseFloat(item.test.price || 0) : 0);
     }, 0);
   };
 
+  const total = calculateTotal();
+  const discount = parseFloat(billData.bill?.discount || 0);
+  const tax = parseFloat(billData.bill?.tax || 0);
+  const discountAmount = (total * discount) / 100;
+  const taxAmount = ((total - discountAmount) * tax) / 100;
+  const finalAmount = total - discountAmount + taxAmount;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Bill</h2>
+      <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold">Invoice</h2>
+            <p className="text-blue-100 text-sm">Invoice #: {billData.bill?.invoiceNumber}</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-white hover:bg-blue-800 p-2 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Label htmlFor="patient">Patient *</Label>
-            <select
-              id="patient"
-              {...register('patientId', { required: 'Patient is required' })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Select a patient</option>
-              {patients.map(patient => (
-                <option key={patient.id} value={patient.id}>
-                  {patient.name}
-                </option>
-              ))}
-            </select>
-            {errors.patientId && (
-              <p className="text-red-500 text-sm mt-1">{errors.patientId.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label>Select Tests *</Label>
-            <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50">
-              {tests.length === 0 ? (
-                <p className="text-gray-500 text-sm">No tests available</p>
-              ) : (
-                tests.map(test => (
-                  <label key={test.id} className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded">
-                    <input
-                      type="checkbox"
-                      checked={selectedTests.includes(test.id)}
-                      onChange={() => {
-                        setSelectedTests(prev =>
-                          prev.includes(test.id)
-                            ? prev.filter(id => id !== test.id)
-                            : [...prev, test.id]
-                        );
-                      }}
-                      className="w-4 h-4 rounded border-gray-300"
-                    />
-                    <span className="flex-1">
-                      <span className="font-medium text-gray-900">{test.name}</span>
-                      <span className="text-gray-600 ml-2">‚Çπ{Number(test.price).toFixed(2)}</span>
-                    </span>
-                  </label>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        {/* Content */}
+        <div className="p-8">
+          {/* Lab & Patient Info */}
+          <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <Label htmlFor="discount">Discount %</Label>
-              <input
-                id="discount"
-                {...register('discount')}
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                placeholder="0"
-              />
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">LAB INFORMATION</h3>
+              <p className="font-bold text-gray-900">Your Laboratory</p>
+              <p className="text-sm text-gray-600">Registration: LAB-12345</p>
+              <p className="text-sm text-gray-600">Phone: +91 9876543210</p>
             </div>
             <div>
-              <Label htmlFor="tax">Tax %</Label>
-              <input
-                id="tax"
-                {...register('tax')}
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                placeholder="0"
-              />
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">PATIENT INFORMATION</h3>
+              <p className="font-bold text-gray-900">{billData.patient?.name}</p>
+              <p className="text-sm text-gray-600">Phone: {billData.patient?.phoneNumber}</p>
+              <p className="text-sm text-gray-600">Age: {billData.patient?.age || 'N/A'} | Gender: {billData.patient?.gender || 'N/A'}</p>
             </div>
           </div>
 
-          {selectedTests.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm font-semibold text-blue-900">
-                Total: ‚Çπ{calculateTotal().toFixed(2)}
-              </p>
-            </div>
-          )}
+          {/* Tests Table */}
+          <div className="border-2 border-gray-300 rounded-lg overflow-hidden mb-8">
+            <table className="w-full">
+              <thead className="bg-gray-100 border-b-2 border-gray-300">
+                <tr>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-900">Test Name</th>
+                  <th className="px-6 py-3 text-right font-semibold text-gray-900">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {billData.tests && billData.tests.length > 0 ? (
+                  billData.tests.map((item, idx) => (
+                    <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-6 py-3 text-gray-900">{item.test?.name || 'N/A'}</td>
+                      <td className="px-6 py-3 text-right text-gray-900">‚Çπ{item.test?.price || '0.00'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} className="px-6 py-4 text-center text-gray-500">
+                      No tests selected
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-          <div className="flex gap-2 justify-end">
+          {/* Bill Summary */}
+          <div className="flex justify-end mb-8">
+            <div className="w-full max-w-xs border-2 border-gray-300 rounded-lg p-6 bg-gray-50">
+              <div className="space-y-3">
+                <div className="flex justify-between text-gray-900">
+                  <span className="font-semibold">Subtotal:</span>
+                  <span>‚Çπ{total.toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-red-600">
+                    <span className="font-semibold">Discount ({discount}%):</span>
+                    <span>-‚Çπ{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {tax > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="font-semibold">Tax ({tax}%):</span>
+                    <span>+‚Çπ{taxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t border-gray-300 pt-3">
+                  <div className="flex justify-between text-lg font-bold text-gray-900">
+                    <span>Total Amount:</span>
+                    <span>‚Çπ{finalAmount.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Status */}
+          <div className={`p-4 rounded-lg mb-6 ${
+            billData.bill?.isPaid 
+              ? 'bg-green-50 border-2 border-green-300' 
+              : 'bg-yellow-50 border-2 border-yellow-300'
+          }`}>
+            <p className={`font-semibold ${
+              billData.bill?.isPaid 
+                ? 'text-green-700' 
+                : 'text-yellow-700'
+            }`}>
+              Payment Status: {billData.bill?.isPaid ? '‚úì PAID' : '‚è≥ UNPAID'}
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-sm text-gray-500 border-t border-gray-300 pt-4 mb-6">
+            <p>Thank you for using our laboratory services!</p>
+            <p className="text-xs mt-2">Generated on: {new Date().toLocaleString()}</p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end print:hidden">
             <button
-              type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
+              className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
             >
-              Cancel
+              Close
             </button>
             <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50"
+              onClick={handleDownloadPDF}
+              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
             >
-              {isSubmitting ? 'Creating...' : 'Create Bill'}
+              Ì≥• Download PDF
+            </button>
+            <button
+              onClick={handlePrint}
+              disabled={isPrinting}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isPrinting ? 'Processing...' : 'Ì∂®Ô∏è Print'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

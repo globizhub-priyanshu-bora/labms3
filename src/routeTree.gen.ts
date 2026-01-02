@@ -21,7 +21,7 @@ import { Route as TestResultsTestIdRouteImport } from './routes/test-results/$te
 import { Route as PatientsRegisterRouteImport } from './routes/patients/register'
 import { Route as PatientsIdRouteImport } from './routes/patients/$id'
 import { Route as BillsIdRouteImport } from './routes/bills/$id'
-import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminUserManagementRouteImport } from './routes/admin/user-management'
 import { Route as BillsBillIdRouteImport } from './routes/bills/bill.$id'
 import { Route as BillsBillRouteImport } from './routes/bills/bill.'
 
@@ -85,9 +85,9 @@ const BillsIdRoute = BillsIdRouteImport.update({
   path: '/bills/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
+const AdminUserManagementRoute = AdminUserManagementRouteImport.update({
+  id: '/admin/user-management',
+  path: '/admin/user-management',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BillsBillIdRoute = BillsBillIdRouteImport.update({
@@ -105,7 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/lab-setup': typeof LabSetupRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/bills/$id': typeof BillsIdRoute
   '/patients/$id': typeof PatientsIdRoute
   '/patients/register': typeof PatientsRegisterRoute
@@ -122,7 +122,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/lab-setup': typeof LabSetupRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/bills/$id': typeof BillsIdRoute
   '/patients/$id': typeof PatientsIdRoute
   '/patients/register': typeof PatientsRegisterRoute
@@ -140,7 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/lab-setup': typeof LabSetupRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/bills/$id': typeof BillsIdRoute
   '/patients/$id': typeof PatientsIdRoute
   '/patients/register': typeof PatientsRegisterRoute
@@ -159,7 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/lab-setup'
-    | '/admin/dashboard'
+    | '/admin/user-management'
     | '/bills/$id'
     | '/patients/$id'
     | '/patients/register'
@@ -176,7 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/lab-setup'
-    | '/admin/dashboard'
+    | '/admin/user-management'
     | '/bills/$id'
     | '/patients/$id'
     | '/patients/register'
@@ -193,7 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/lab-setup'
-    | '/admin/dashboard'
+    | '/admin/user-management'
     | '/bills/$id'
     | '/patients/$id'
     | '/patients/register'
@@ -211,7 +211,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LabSetupRoute: typeof LabSetupRoute
-  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminUserManagementRoute: typeof AdminUserManagementRoute
   BillsIdRoute: typeof BillsIdRoute
   PatientsIdRoute: typeof PatientsIdRoute
   PatientsRegisterRoute: typeof PatientsRegisterRoute
@@ -311,11 +311,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/admin/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
+    '/admin/user-management': {
+      id: '/admin/user-management'
+      path: '/admin/user-management'
+      fullPath: '/admin/user-management'
+      preLoaderRoute: typeof AdminUserManagementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bills/bill/$id': {
@@ -339,7 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LabSetupRoute: LabSetupRoute,
-  AdminDashboardRoute: AdminDashboardRoute,
+  AdminUserManagementRoute: AdminUserManagementRoute,
   BillsIdRoute: BillsIdRoute,
   PatientsIdRoute: PatientsIdRoute,
   PatientsRegisterRoute: PatientsRegisterRoute,

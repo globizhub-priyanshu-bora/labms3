@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { AlertCircle, ArrowLeft, Download, Printer } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { getBillById } from '@/routes/apis/bill-apis';
@@ -365,7 +364,7 @@ function BillDetailPage() {
                   tests.map((testItem, idx) => (
                     <tr key={idx} className="border-b border-gray-300">
                       <td className="py-1 px-2 text-gray-900">{testItem.test?.name || "-"}</td>
-                      <td className="text-right py-1 px-2 text-gray-900">₹{(totalAmount / tests.length).toFixed(2)}</td>
+                      <td className="text-right py-1 px-2 text-gray-900">₹{(parseFloat(testItem.test?.price || '0') || 0).toFixed(2)}</td>
                     </tr>
                   ))
                 ) : (

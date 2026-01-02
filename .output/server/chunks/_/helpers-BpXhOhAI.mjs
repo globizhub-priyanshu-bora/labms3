@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { g as getSessionFromRequest, i as getSession, d as db, u as userSchema } from "./session-manager-CtAttBZO.mjs";
+import { g as getSessionFromRequest, h as getSession, d as db, u as userSchema } from "./session-manager-CtAttBZO.mjs";
 const getLabIdFromRequest = async (request) => {
   const sessionId = getSessionFromRequest(request);
   if (!sessionId) {

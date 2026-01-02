@@ -248,19 +248,19 @@ const getSessionFromRequest = (request) => {
   }
 };
 export {
-  testSchema as a,
-  testResultsSchema as b,
+  patientTestsSchema as a,
+  billSchema as b,
   doctorSchema as c,
   db as d,
-  patientSchema as e,
-  billSchema as f,
+  testParamSchema as e,
+  deleteSession as f,
   getSessionFromRequest as g,
-  deleteSession as h,
-  getSession as i,
-  updateSession as j,
-  createSession as k,
+  getSession as h,
+  updateSession as i,
+  createSession as j,
+  testResultsSchema as k,
   labSchema as l,
-  patientTestsSchema as p,
-  testParamSchema as t,
+  patientSchema as p,
+  testSchema as t,
   userSchema as u
 };

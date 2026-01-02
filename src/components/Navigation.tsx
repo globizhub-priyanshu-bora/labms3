@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
 import { ChevronDown, LogOut, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from '@/lib/toast';
 import { useAuth } from './ProtectedRoute';
 import { Button } from './ui/button';
 
@@ -22,9 +23,17 @@ export function Navigation() {
 
   const handleLogout = async () => {
     try {
-      await logout();
-    } catch {
-      window.location.href = '/login';
+      const result = await logout();
+      toast.success('Logged out successfully');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 500);
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed, redirecting...');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1000);
     }
   };
 
@@ -47,7 +56,7 @@ export function Navigation() {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-1">
               {MENU_ITEMS.map((item) => (
                 <NavLink
                   key={item.to}
@@ -68,29 +77,29 @@ export function Navigation() {
               <div className="relative">
                 <Button
                   onClick={() => setShowMore((v) => !v)}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 rounded-md flex items-center gap-1"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md flex items-center gap-1"
                 >
                   More
-                  <ChevronDown className={`w-4 h-4 ${showMore ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} />
                 </Button>
                 {showMore && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-gray-300 rounded-lg shadow-2xl py-3 z-50 space-y-1">
                     {user?.isAdmin && (
-                      <DropdownButton onClick={() => navigate({ to: '/admin/user-management' })}>
-                        User Management
+                      <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/admin/user-management' }); }}>
+                        👤 User Management
                       </DropdownButton>
                     )}
-                    <DropdownButton onClick={() => navigate({ to: '/dashboard' })}>
-                      Dashboard
+                    <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/dashboard' }); }}>
+                      📊 Dashboard
                     </DropdownButton>
                     {user?.isAdmin && (
-                      <DropdownButton onClick={() => navigate({ to: '/lab-details' })}>
-                        Lab Details
+                      <DropdownButton onClick={() => { setShowMore(false); navigate({ to: '/lab-details' }); }}>
+                        🏥 Lab Details
                       </DropdownButton>
                     )}
-                    <div className="border-t border-gray-200 my-2" />
+                    <div className="border-t border-gray-300 my-2" />
                     <DropdownButton onClick={handleLogout} danger>
-                      <LogOut className="w-4 h-4 mr-2" />
+                      <LogOut className="w-4 h-4 mr-2 inline" />
                       Logout
                     </DropdownButton>
                   </div>
@@ -167,12 +176,16 @@ export function Navigation() {
 function NavLink({ to, active, children, onClick }: { to: string; active?: boolean; children: React.ReactNode; onClick?: () => void }) {
   const navigate = useNavigate();
   return (
-    <Button
+    <button
       onClick={() => { onClick?.(); navigate({ to }); }}
-      className={`px-3 py-2 text-sm font-medium rounded-md ${active ? 'bg-blue-100 text-blue-700' : 'text-gray-700'} transition-none`}
+      className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+        active 
+          ? 'bg-blue-600 text-white shadow-md' 
+          : 'text-gray-900 bg-gray-100'
+      }`}
     >
       {children}
-    </Button>
+    </button>
   );
 }
 
@@ -182,7 +195,11 @@ function DropdownButton({ onClick, children, danger }: { onClick: () => void; ch
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left px-4 py-2 text-sm rounded-md ${danger ? 'text-red-600' : 'text-gray-700'} bg-white`}
+      className={`w-full text-left px-4 py-3 text-sm font-medium rounded-md transition-all ${
+        danger 
+          ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+          : 'text-gray-900 bg-gray-50 hover:bg-gray-100'
+      }`}
     >
       {children}
     </button>

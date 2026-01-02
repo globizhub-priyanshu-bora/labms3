@@ -1,12 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { AlertCircle, ArrowLeft, Download, Printer } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { getBillById } from '@/routes/apis/bill-apis';
-import { getLabInfo } from '@/routes/apis/lab-apis';
 import { printBillAsPDF } from '@/lib/pdf-generator';
 import { toast } from '@/lib/toast';
+import { getBillById } from '@/routes/apis/bill-apis';
+import { getLabInfo } from '@/routes/apis/lab-apis';
 
 export const Route = createFileRoute('/bills/bill/$id')({
   component: () => (
@@ -112,8 +111,8 @@ function BillDetailPage() {
         isPaid: bill.isPaid || false,
         createdAt: bill.createdAt?.toString() || new Date().toISOString(),
         tests: tests?.map((test: any) => ({
-          name: test.testName || test.name || 'Test',
-          price: test.price?.toString() || '0',
+          name: test.test?.name || test.testName || test.name || 'Test',
+          price: (test.test?.price || test.price)?.toString() || '0',
         })) || [],
       };
 
@@ -484,8 +483,8 @@ function BillDetailPage() {
                 <tbody>
                   {tests.map((test: any, index: number) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2">{test.testName || test.name}</td>
-                      <td className="border border-gray-300 px-4 py-2 text-right">₹{parseFloat(test.price || 0).toFixed(2)}</td>
+                      <td className="border border-gray-300 px-4 py-2">{test.test?.name || test.testName || test.name}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-right">₹{parseFloat(test.test?.price || test.price || 0).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
