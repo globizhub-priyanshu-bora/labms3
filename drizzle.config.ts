@@ -5,6 +5,6 @@ export default defineConfig({
   schema: './src/db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_EFfd2lB1sgyh@ep-dark-snow-a1vlroad-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+    url: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_dOYs1VeNkE6B@ep-gentle-rice-a1voph97-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
   },
 })

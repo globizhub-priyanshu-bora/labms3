@@ -14,6 +14,7 @@ import {
   updateTest,
 } from '@/routes/apis/test-apis';
 import { getAllTestParameters } from '@/routes/apis/test-parameter-apis';
+import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/tests/')({
   component: TestManagement,
@@ -169,7 +170,7 @@ function TestManagement() {
       }
     } catch (error) {
       console.error('Error adding test:', error);
-      alert(error instanceof Error ? error.message : 'Failed to add test');
+      toast.error(error instanceof Error ? error.message : 'Failed to add test');
     }
   };
 
@@ -246,7 +247,7 @@ function TestManagement() {
       }
     } catch (error) {
       console.error('Error updating test:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update test');
+      toast.error(error instanceof Error ? error.message : 'Failed to update test');
     }
   };
 
@@ -264,7 +265,7 @@ function TestManagement() {
       }
     } catch (error) {
       console.error('Error deleting test:', error);
-      alert('Failed to delete test');
+      toast.error('Failed to delete test');
     }
   };
 

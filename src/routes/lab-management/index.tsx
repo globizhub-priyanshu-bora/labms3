@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { bulkDeletePatients, getAllPatients, updatePatient } from '@/routes/apis/patient-apis';
 import { getAllBills } from '@/routes/apis/bill-apis';
+import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/lab-management/')({
   component: () => (
@@ -139,7 +140,7 @@ function LabManagement() {
       }
     } catch (error) {
       console.error('Error refreshing:', error);
-      alert('Failed to refresh data');
+      toast.error('Failed to refresh data');
     } finally {
       setIsRefreshing(false);
     }
@@ -254,11 +255,11 @@ function LabManagement() {
 
   const handleEdit = () => {
     if (selectedPatients.length === 0) {
-      alert('Please select a patient to edit');
+      toast.error('Please select a patient to edit');
       return;
     }
     if (selectedPatients.length > 1) {
-      alert('Please select only one patient to edit');
+      toast.error('Please select only one patient to edit');
       return;
     }
     const patient = filteredPatients.find(p => p.id === selectedPatients[0]);
@@ -288,17 +289,17 @@ function LabManagement() {
         setIsEditModalOpen(false);
         setEditingPatient(null);
         setSelectedPatients([]);
-        alert('Patient updated successfully!');
+        toast.error('Patient updated successfully!');
       }
     } catch (error) {
       console.error('Error updating patient:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update patient');
+      toast.error(error instanceof Error ? error.message : 'Failed to update patient');
     }
   };
 
   const handleDelete = async () => {
     if (selectedPatients.length === 0) {
-      alert('Please select at least one patient to delete');
+      toast.error('Please select at least one patient to delete');
       return;
     }
 
@@ -319,7 +320,7 @@ function LabManagement() {
       }
     } catch (error) {
       console.error('Error deleting patients:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete patients');
+      toast.error(error instanceof Error ? error.message : 'Failed to delete patients');
     }
   };
 

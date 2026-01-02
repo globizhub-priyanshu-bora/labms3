@@ -1,3 +1,4 @@
+import { toast } from '@/lib/toast';
 import { createFileRoute } from '@tanstack/react-router';
 import { AlertCircle, Edit, Plus, Search, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
@@ -222,7 +223,7 @@ function TestParameterManagement() {
       }
     } catch (error) {
       console.error('Error deleting parameter:', error);
-      alert('Failed to delete parameter');
+      toast.error('Failed to delete parameter');
     }
   };
 

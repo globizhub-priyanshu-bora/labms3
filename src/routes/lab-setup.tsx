@@ -1,12 +1,13 @@
 // Save as: /routes/lab-setup.tsx
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Building2, FileText, Mail, MapPin, Phone } from 'lucide-react';
+import { Building2, FileText, Mail, MapPin, Phone, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { setupLab } from '@/routes/apis/auth-apis';
+import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/lab-setup')({
   component: LabSetup,
@@ -22,31 +23,59 @@ interface LabSetupFormData {
   pincode?: number;
   phoneNumber?: number;
   email?: string;
+  photoDocument?: string;
 }
 
 function LabSetup() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
-  
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LabSetupFormData>();
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setPhotoPreview(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (data: LabSetupFormData) => {
     try {
       setErrorMessage('');
-      const result = await setupLab({ data });
+      
+      const submitData = {
+        ...data,
+        photoDocument: photoPreview || undefined,
+      };
+
+      const result = await setupLab({ data: submitData });
 
       if (result.success) {
+        toast.success('Lab setup completed successfully!');
         // Redirect to lab management after successful setup
         navigate({ to: '/lab-management' });
+      } else {
+        setErrorMessage(result.error || 'Lab setup failed. Please try again.');
       }
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : 'Lab setup failed. Please try again.'
-      );
+      const errorMsg = error instanceof Error ? error.message : 'Lab setup failed. Please try again.';
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -230,11 +259,63 @@ function LabSetup() {
               </div>
             </div>
 
+            {/* Lab Registration Document / Photo */}
+            <div>
+              <Label className="block text-sm font-semibold text-gray-900 mb-2">
+                Lab Registration Document / Photo
+              </Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handlePhotoSelect}
+                  className="hidden"
+                  id="photo-input"
+                />
+                <label htmlFor="photo-input" className="cursor-pointer">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    PNG, JPG, or PDF (Max 5MB)
+                  </p>
+                </label>
+              </div>
+
+              {/* Photo Preview */}
+              {photoPreview && (
+                <div className="mt-4 relative">
+                  <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                    {photoPreview.includes('pdf') ? (
+                      <div className="flex items-center justify-center h-full text-gray-600">
+                        <FileText className="w-8 h-8 mr-2" />
+                        PDF Document Uploaded
+                      </div>
+                    ) : (
+                      <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhotoPreview(null);
+                      const input = document.getElementById('photo-input') as HTMLInputElement;
+                      if (input) input.value = '';
+                    }}
+                    className="mt-2 text-sm text-red-600 hover:text-red-700"
+                  >
+                    Remove Document
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Info Box */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> This information will be used for all your laboratory's 
-                reports, bills, and official documents. You can update these details later 
+                <strong>Note:</strong> This information will be used for all your laboratory's
+                reports, bills, and official documents. You can update these details later
                 from the settings.
               </p>
             </div>
@@ -273,3 +354,5 @@ function LabSetup() {
     </div>
   );
 }
+
+export default LabSetup;

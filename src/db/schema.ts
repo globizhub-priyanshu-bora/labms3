@@ -6,6 +6,7 @@ export const labSchema = p.pgTable('labSchema', {
   name: p.text().notNull(),
   addressLine1: p.text(),
   logo: p.text(),
+  photoDocument: p.text(), // NEW: Lab photo document (registration proof)
   gstinNumber: p.text().unique(),
   registrationNumber: p.text().unique(),
   state: p.text(),
@@ -36,14 +37,16 @@ export const userSchema = p.pgTable('userSchema', {
   deletedAt: p.timestamp()
 });
 
-// Doctor table - with labId
+// Doctor table - with labId and gender + document
 export const doctorSchema = p.pgTable('doctorSchema', {
   id: p.serial().primaryKey(),
   labId: p.integer().references(() => labSchema.id).notNull(),
   registrationNumber: p.text(),
   name: p.text().notNull(),
+  gender: p.text(), // NEW: Gender field (Male, Female, Other)
   specialization: p.text(),
-  phoneNumber: p.bigint({ mode: 'number' }), 
+  phoneNumber: p.bigint({ mode: 'number' }),
+  photoDocument: p.text(), // NEW: Photo/ID document upload
   createdAt: p.timestamp().defaultNow(),
   updatedAt: p.timestamp().defaultNow(),
   deletedAt: p.timestamp()
@@ -61,15 +64,15 @@ export const testSchema = p.pgTable('testSchema', {
   deletedAt: p.timestamp()
 });
 
-// UPDATED: Test Parameter table with reference ranges for different demographics
+// UPDATED: Test Parameter table with reference ranges for different demographics    
 export const testParamSchema = p.pgTable('testParamSchema', {
   id: p.serial().primaryKey(),
   labId: p.integer().references(() => labSchema.id).notNull(),
   name: p.text().notNull(),
   unit: p.text(),
   price: p.decimal(),
-  // NEW: Store reference ranges as JSON for different age groups and genders
-  referenceRanges: p.json(), // Structure: { male: {...}, female: {...}, child: {...} }
+  // NEW: Store reference ranges as JSON for different age groups and genders        
+  referenceRanges: p.json(), // Structure: { male: {...}, female: {...}, child: {...}
   metadata: p.json(),
   createdAt: p.timestamp().defaultNow(),
   updatedAt: p.timestamp().defaultNow(),
@@ -94,7 +97,7 @@ export const patientSchema = p.pgTable('patientSchema', {
 });
 
 // Patient Tests table - with labId
-export const patientTestsSchema = p.pgTable('patientTestsSchema', {  
+export const patientTestsSchema = p.pgTable('patientTestsSchema', {
   id: p.serial().primaryKey(),
   labId: p.integer().references(() => labSchema.id).notNull(),
   patientId: p.integer().references(() => patientSchema.id).notNull(),
@@ -112,7 +115,7 @@ export const patientTestsSchema = p.pgTable('patientTestsSchema', {
 export const testResultsSchema = p.pgTable('testResultsSchema', {
   id: p.serial().primaryKey(),
   labId: p.integer().references(() => labSchema.id).notNull(),
-  patientTestId: p.integer().references(() => patientTestsSchema.id).notNull(),
+  patientTestId: p.integer().references(() => patientTestsSchema.id).notNull(),      
   result: p.json(),
   createdAt: p.timestamp().defaultNow(),
   updatedAt: p.timestamp().defaultNow(),
@@ -130,6 +133,19 @@ export const billSchema = p.pgTable('billSchema', {
   tax: p.decimal(),
   finalAmount: p.decimal().notNull(),
   isPaid: p.boolean().default(false),
+  createdAt: p.timestamp().defaultNow(),
+  updatedAt: p.timestamp().defaultNow(),
+  deletedAt: p.timestamp()
+});
+
+// Report table
+export const reportSchema = p.pgTable('reportSchema', {
+  id: p.serial().primaryKey(),
+  labId: p.integer().references(() => labSchema.id).notNull(),
+  patientTestId: p.integer().references(() => patientTestsSchema.id).notNull(),
+  billId: p.integer().references(() => billSchema.id),
+  status: p.text().default('pending'),
+  notes: p.text(),
   createdAt: p.timestamp().defaultNow(),
   updatedAt: p.timestamp().defaultNow(),
   deletedAt: p.timestamp()

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { doctorSchema } from '@/db/schema';
 import { getLabIdFromRequest } from './helpers';
+import { toast } from '@/lib/toast';
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -12,16 +13,20 @@ import { getLabIdFromRequest } from './helpers';
 const DoctorCreateSchema = z.object({
   registrationNumber: z.string().min(1, 'Registration number is required'),
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  gender: z.string().optional(), // NEW: Gender field
   specialization: z.string().optional(),
   phoneNumber: z.number().int().positive().optional(),
+  photoDocument: z.string().optional(), // NEW: Photo document (base64 or URL)
 });
 
 const DoctorUpdateSchema = z.object({
   id: z.number().int().positive(),
   registrationNumber: z.string().min(1).optional(),
   name: z.string().min(2).optional(),
+  gender: z.string().optional(), // NEW: Gender field
   specialization: z.string().optional(),
   phoneNumber: z.number().int().positive().optional(),
+  photoDocument: z.string().optional(), // NEW: Photo document
 });
 
 const DoctorIdSchema = z.object({
@@ -55,7 +60,7 @@ export const registerDoctor = createServerFn({ method: 'POST' })
         .where(
           and(
             eq(doctorSchema.registrationNumber, data.registrationNumber),
-            eq(doctorSchema.labId, labId), // CRITICAL: Check within lab only
+            eq(doctorSchema.labId, labId),
             isNull(doctorSchema.deletedAt)
           )
         )
@@ -69,11 +74,13 @@ export const registerDoctor = createServerFn({ method: 'POST' })
       const [newDoctor] = await db
         .insert(doctorSchema)
         .values({
-          labId, // CRITICAL: Assign to user's lab
+          labId,
           registrationNumber: data.registrationNumber,
           name: data.name,
+          gender: data.gender || null, // NEW: Store gender
           specialization: data.specialization || null,
           phoneNumber: data.phoneNumber || null,
+          photoDocument: data.photoDocument || null, // NEW: Store photo document
         })
         .returning();
 
@@ -95,141 +102,65 @@ export const getAllDoctors = createServerFn({ method: 'GET' })
   .handler(async ({ data, request }) => {
     try {
       const { limit, offset, sortBy, sortOrder } = data;
-      
+
       // CRITICAL: Get labId from authenticated user
       let labId: number;
       try {
         labId = await getLabIdFromRequest(request);
       } catch (error) {
         console.error('Error getting lab ID:', error);
-        // Return empty list instead of throwing to prevent deployment errors
-        return {
-          success: true,
-          data: [],
-          pagination: {
-            total: 0,
-            limit,
-            offset,
-            hasMore: false,
-          },
-        };
+        throw new Error('Unable to identify your lab. Please log in again.');
       }
 
-      const orderByColumn = doctorSchema[sortBy];
-      const orderBy = sortOrder === 'desc' ? desc(orderByColumn) : orderByColumn;
+      // Build the sorting condition
+      let sortColumn: any = desc(doctorSchema.createdAt);
+      if (sortBy === 'name') {
+        sortColumn = sortOrder === 'asc' ? doctorSchema.name : desc(doctorSchema.name);
+      } else if (sortBy === 'specialization') {
+        sortColumn = sortOrder === 'asc' ? doctorSchema.specialization : desc(doctorSchema.specialization);
+      } else {
+        sortColumn = sortOrder === 'asc' ? doctorSchema.createdAt : desc(doctorSchema.createdAt);
+      }
 
-      // Count only doctors from user's lab
-      const countResult = await db
-        .select({ count: count() })
-        .from(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
-            isNull(doctorSchema.deletedAt)
-          )
-        );
-
-      const totalCount = Number(countResult[0]?.count || 0);
-
-      // Get only doctors from user's lab
+      // Query doctors for THIS LAB ONLY
       const doctors = await db
         .select()
         .from(doctorSchema)
         .where(
           and(
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
+            eq(doctorSchema.labId, labId),
             isNull(doctorSchema.deletedAt)
           )
         )
-        .orderBy(orderBy)
+        .orderBy(sortColumn)
         .limit(limit)
         .offset(offset);
+
+      // Get total count
+      const totalResult = await db
+        .select({ count: count() })
+        .from(doctorSchema)
+        .where(
+          and(
+            eq(doctorSchema.labId, labId),
+            isNull(doctorSchema.deletedAt)
+          )
+        );
+
+      const total = totalResult[0]?.count || 0;
 
       return {
         success: true,
         data: doctors,
-        pagination: {
-          total: totalCount,
-          limit,
-          offset,
-          hasMore: offset + limit < totalCount,
-        },
+        total: total,
+        limit: limit,
+        offset: offset,
       };
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      // Return empty list instead of throwing to prevent deployment errors
-      return {
-        success: true,
-        data: [],
-        pagination: {
-          total: 0,
-          limit: 50,
-          offset: 0,
-          hasMore: false,
-        },
-      };
-    }
-  });
-
-export const searchDoctors = createServerFn({ method: 'GET' })
-  .inputValidator(DoctorSearchSchema)
-  .handler(async ({ data, request }) => {
-    try {
-      const { query, limit, offset } = data;
-      const searchPattern = `%${query}%`;
-      
-      // CRITICAL: Get labId from authenticated user
-      const labId = await getLabIdFromRequest(request);
-
-      const doctors = await db
-        .select()
-        .from(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
-            or(
-              ilike(doctorSchema.name, searchPattern),
-              ilike(doctorSchema.registrationNumber, searchPattern),
-              ilike(doctorSchema.specialization, searchPattern)
-            ),
-            isNull(doctorSchema.deletedAt)
-          )
-        )
-        .orderBy(desc(doctorSchema.createdAt))
-        .limit(limit)
-        .offset(offset);
-
-      const countResult = await db
-        .select({ count: count() })
-        .from(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
-            or(
-              ilike(doctorSchema.name, searchPattern),
-              ilike(doctorSchema.registrationNumber, searchPattern),
-              ilike(doctorSchema.specialization, searchPattern)
-            ),
-            isNull(doctorSchema.deletedAt)
-          )
-        );
-
-      const totalCount = Number(countResult[0]?.count || 0);
-
-      return {
-        success: true,
-        data: doctors,
-        query,
-        pagination: {
-          total: totalCount,
-          limit,
-          offset,
-          hasMore: offset + limit < totalCount,
-        },
-      };
-    } catch (error) {
-      console.error('Error searching doctors:', error);
-      throw new Error('Failed to search doctors');
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to fetch doctors'
+      );
     }
   });
 
@@ -237,7 +168,6 @@ export const getDoctorById = createServerFn({ method: 'GET' })
   .inputValidator(DoctorIdSchema)
   .handler(async ({ data, request }) => {
     try {
-      // CRITICAL: Get labId from authenticated user
       const labId = await getLabIdFromRequest(request);
 
       const [doctor] = await db
@@ -246,14 +176,13 @@ export const getDoctorById = createServerFn({ method: 'GET' })
         .where(
           and(
             eq(doctorSchema.id, data.id),
-            eq(doctorSchema.labId, labId), // CRITICAL: Verify ownership
+            eq(doctorSchema.labId, labId),
             isNull(doctorSchema.deletedAt)
           )
-        )
-        .limit(1);
+        );
 
       if (!doctor) {
-        throw new Error('Doctor not found or access denied');
+        throw new Error('Doctor not found');
       }
 
       return {
@@ -268,65 +197,55 @@ export const getDoctorById = createServerFn({ method: 'GET' })
     }
   });
 
-export const updateDoctor = createServerFn({ method: 'POST' })
+export const updateDoctor = createServerFn({ method: 'PUT' })
   .inputValidator(DoctorUpdateSchema)
   .handler(async ({ data, request }) => {
     try {
-      const { id, ...updateData } = data;
-      
-      // CRITICAL: Get labId from authenticated user
       const labId = await getLabIdFromRequest(request);
+      const { id, ...updateData } = data;
 
-      // Check if doctor exists AND belongs to user's lab
-      const [existing] = await db
+      // Verify doctor exists and belongs to this lab
+      const [existingDoctor] = await db
         .select()
         .from(doctorSchema)
         .where(
           and(
             eq(doctorSchema.id, id),
-            eq(doctorSchema.labId, labId), // CRITICAL: Verify ownership
+            eq(doctorSchema.labId, labId),
             isNull(doctorSchema.deletedAt)
           )
-        )
-        .limit(1);
+        );
 
-      if (!existing) {
-        throw new Error('Doctor not found or access denied');
+      if (!existingDoctor) {
+        throw new Error('Doctor not found');
       }
 
-      // If updating registration number, check for duplicates IN THIS LAB
-      if (updateData.registrationNumber) {
-        const [duplicate] = await db
+      // Check for duplicate registration number if it's being changed
+      if (updateData.registrationNumber && updateData.registrationNumber !== existingDoctor.registrationNumber) {
+        const duplicate = await db
           .select()
           .from(doctorSchema)
           .where(
             and(
               eq(doctorSchema.registrationNumber, updateData.registrationNumber),
-              eq(doctorSchema.labId, labId), // CRITICAL: Check within lab only
-              ne(doctorSchema.id, id),
+              eq(doctorSchema.labId, labId),
               isNull(doctorSchema.deletedAt)
             )
           )
           .limit(1);
 
-        if (duplicate) {
-          throw new Error('Registration number already exists for another doctor in your lab');
+        if (duplicate.length > 0) {
+          throw new Error('Another doctor with this registration number already exists');
         }
       }
 
-      // Update doctor
       const [updatedDoctor] = await db
         .update(doctorSchema)
         .set({
           ...updateData,
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(doctorSchema.id, id),
-            eq(doctorSchema.labId, labId) // CRITICAL: Ensure update is for user's lab
-          )
-        )
+        .where(eq(doctorSchema.id, id))
         .returning();
 
       return {
@@ -342,43 +261,29 @@ export const updateDoctor = createServerFn({ method: 'POST' })
     }
   });
 
-export const deleteDoctor = createServerFn({ method: 'POST' })
+export const deleteDoctor = createServerFn({ method: 'DELETE' })
   .inputValidator(DoctorIdSchema)
   .handler(async ({ data, request }) => {
     try {
-      // CRITICAL: Get labId from authenticated user
       const labId = await getLabIdFromRequest(request);
 
-      // Check if doctor exists AND belongs to user's lab
-      const [existing] = await db
-        .select()
-        .from(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.id, data.id),
-            eq(doctorSchema.labId, labId), // CRITICAL: Verify ownership
-            isNull(doctorSchema.deletedAt)
-          )
-        )
-        .limit(1);
-
-      if (!existing) {
-        throw new Error('Doctor not found or access denied');
-      }
-
-      // Soft delete
-      await db
+      // Soft delete - set deletedAt
+      const [deletedDoctor] = await db
         .update(doctorSchema)
         .set({
           deletedAt: new Date(),
-          updatedAt: new Date(),
         })
         .where(
           and(
             eq(doctorSchema.id, data.id),
-            eq(doctorSchema.labId, labId) // CRITICAL
+            eq(doctorSchema.labId, labId)
           )
-        );
+        )
+        .returning();
+
+      if (!deletedDoctor) {
+        throw new Error('Doctor not found');
+      }
 
       return {
         success: true,
@@ -392,131 +297,37 @@ export const deleteDoctor = createServerFn({ method: 'POST' })
     }
   });
 
-export const permanentlyDeleteDoctor = createServerFn({ method: 'POST' })
-  .inputValidator(DoctorIdSchema)
+export const searchDoctors = createServerFn({ method: 'GET' })
+  .inputValidator(DoctorSearchSchema)
   .handler(async ({ data, request }) => {
     try {
-      // CRITICAL: Get labId from authenticated user
       const labId = await getLabIdFromRequest(request);
-
-      const deleted = await db
-        .delete(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.id, data.id),
-            eq(doctorSchema.labId, labId) // CRITICAL: Verify ownership
-          )
-        )
-        .returning();
-
-      if (deleted.length === 0) {
-        throw new Error('Doctor not found or access denied');
-      }
-
-      return {
-        success: true,
-        message: 'Doctor permanently deleted',
-      };
-    } catch (error) {
-      console.error('Error permanently deleting doctor:', error);
-      throw new Error(
-        error instanceof Error ? error.message : 'Failed to permanently delete doctor'
-      );
-    }
-  });
-
-export const restoreDoctor = createServerFn({ method: 'POST' })
-  .inputValidator(DoctorIdSchema)
-  .handler(async ({ data, request }) => {
-    try {
-      // CRITICAL: Get labId from authenticated user
-      const labId = await getLabIdFromRequest(request);
-
-      const [restored] = await db
-        .update(doctorSchema)
-        .set({
-          deletedAt: null,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(doctorSchema.id, data.id),
-            eq(doctorSchema.labId, labId) // CRITICAL: Verify ownership
-          )
-        )
-        .returning();
-
-      if (!restored) {
-        throw new Error('Doctor not found or access denied');
-      }
-
-      return {
-        success: true,
-        message: 'Doctor restored successfully',
-        data: restored,
-      };
-    } catch (error) {
-      console.error('Error restoring doctor:', error);
-      throw new Error(
-        error instanceof Error ? error.message : 'Failed to restore doctor'
-      );
-    }
-  });
-
-export const getDoctorsBySpecialization = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ specialization: z.string().min(1) }))
-  .handler(async ({ data, request }) => {
-    try {
-      // CRITICAL: Get labId from authenticated user
-      const labId = await getLabIdFromRequest(request);
+      const { query, limit, offset } = data;
 
       const doctors = await db
         .select()
         .from(doctorSchema)
         .where(
           and(
-            eq(doctorSchema.specialization, data.specialization),
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
-            isNull(doctorSchema.deletedAt)
+            eq(doctorSchema.labId, labId),
+            isNull(doctorSchema.deletedAt),
+            or(
+              ilike(doctorSchema.name, `%${query}%`),
+              ilike(doctorSchema.specialization, `%${query}%`)
+            )
           )
         )
-        .orderBy(doctorSchema.name);
+        .limit(limit)
+        .offset(offset);
 
       return {
         success: true,
         data: doctors,
-        specialization: data.specialization,
       };
     } catch (error) {
-      console.error('Error fetching doctors by specialization:', error);
-      throw new Error('Failed to fetch doctors by specialization');
-    }
-  });
-
-export const getAllSpecializations = createServerFn({ method: 'GET' })
-  .handler(async ({ request }) => {
-    try {
-      // CRITICAL: Get labId from authenticated user
-      const labId = await getLabIdFromRequest(request);
-
-      const specializations = await db
-        .selectDistinct({ specialization: doctorSchema.specialization })
-        .from(doctorSchema)
-        .where(
-          and(
-            eq(doctorSchema.labId, labId), // CRITICAL: Filter by labId
-            isNull(doctorSchema.deletedAt),
-            sql`${doctorSchema.specialization} IS NOT NULL`
-          )
-        )
-        .orderBy(doctorSchema.specialization);
-
-      return {
-        success: true,
-        data: specializations.map((s: { specialization: any }) => s.specialization).filter(Boolean),
-      };
-    } catch (error) {
-      console.error('Error fetching specializations:', error);
-      throw new Error('Failed to fetch specializations');
+      console.error('Error searching doctors:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to search doctors'
+      );
     }
   });
