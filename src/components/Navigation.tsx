@@ -144,7 +144,7 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Lab Name */}
-          <Link to={user.isAdmin ? '/admin/dashboard' : '/dashboard'} className="flex items-center gap-2 group">
+          <Link to={user.isAdmin ? '/lab-management' : '/dashboard'} className="flex items-center gap-2 group">
             <div className="bg-black text-white p-2 rounded-lg transition-colors">   
               <FlaskConical className="w-6 h-6" />
             </div>
@@ -160,14 +160,14 @@ export const Navigation = () => {
               if (item.type === 'dropdown') {
                 return (
                   <div key="admin-dropdown" className="relative">
-                    <button
+                    <Button
                       onClick={() => setShowAdminDropdown(!showAdminDropdown)}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:bg-gray-100"
                     >
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
                       <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                    </button>
+                    </Button>
 
                     {/* Admin Dropdown Menu */}
                     {showAdminDropdown && (
