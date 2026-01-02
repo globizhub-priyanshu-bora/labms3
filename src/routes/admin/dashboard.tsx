@@ -1,22 +1,25 @@
-// Save this file as: /routes/admin/dashboard.tsx
-
 import { createFileRoute } from '@tanstack/react-router';
-import { Edit, Plus, Trash2, User, Users, X } from 'lucide-react';
+import { Edit, Plus, Trash2, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/components/ProtectedRoute';
-import { useToast } from '@/components/Toast';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { createUser, deleteUser, getAllUsers, updateUser } from '@/routes/apis/user-apis';        
+import { createUser, deleteUser, getAllUsers, updateUser } from '@/routes/apis/user-apis';
+import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/admin/dashboard')({
   component: AdminDashboard,
   loader: async () => {
-    const result = await getAllUsers({
-      data: { limit: 100, offset: 0, sortBy: 'createdAt', sortOrder: 'desc' },
-    });
-    return result;
+    try {
+      const result = await getAllUsers({
+        data: { limit: 100, offset: 0, sortBy: 'createdAt', sortOrder: 'desc' },
+      });
+      return result;
+    } catch (error) {
+      console.error('Error loading users:', error);
+      return { success: false, data: [], error: 'Failed to load users' };
+    }
   },
 });
 
@@ -51,7 +54,6 @@ interface UserFormData {
 
 function AdminDashboard() {
   const { user: currentUser } = useAuth();
-  const { showToast } = useToast();
   const initialData = Route.useLoaderData();
 
   const [users, setUsers] = useState<UserData[]>(initialData?.data || []);
@@ -139,12 +141,13 @@ function AdminDashboard() {
       const result = await deleteUser({ data: { id: userId } });
       if (result.success) {
         setUsers(users.filter(u => u.id !== userId));
-        showToast('User deleted successfully', 'success');
+        toast.success('User deleted successfully');
       } else {
-        showToast('Failed to delete user', 'error');
+        toast.error(result.error || 'Failed to delete user');
       }
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to delete user', 'error');
+      console.error('Error deleting user:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete user');
     }
   };
 
@@ -152,20 +155,47 @@ function AdminDashboard() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      // Validation
+      if (!formData.name.trim()) {
+        toast.error('Name is required');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.email.trim()) {
+        toast.error('Email is required');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.password.trim()) {
+        toast.error('Password is required');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.role.trim()) {
+        toast.error('Role is required');
+        setIsSubmitting(false);
+        return;
+      }
+
       const result = await createUser({ data: formData });
       if (result.success) {
         const updatedUsers = await getAllUsers({
           data: { limit: 100, offset: 0, sortBy: 'createdAt', sortOrder: 'desc' },
         });
-        setUsers(updatedUsers.data);
-        showToast('User created successfully', 'success');
-        setSelectedView('users');
-        resetForm();
+        if (updatedUsers.success) {
+          setUsers(updatedUsers.data);
+          toast.success('User created successfully');
+          setSelectedView('users');
+          resetForm();
+        } else {
+          toast.error('User created but failed to reload list');
+        }
       } else {
-        showToast('Failed to create user', 'error');
+        toast.error(result.error || 'Failed to create user');
       }
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to create user', 'error');
+      console.error('Error creating user:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create user');
     } finally {
       setIsSubmitting(false);
     }
@@ -177,6 +207,23 @@ function AdminDashboard() {
 
     setIsSubmitting(true);
     try {
+      // Validation
+      if (!formData.name.trim()) {
+        toast.error('Name is required');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.email.trim()) {
+        toast.error('Email is required');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.role.trim()) {
+        toast.error('Role is required');
+        setIsSubmitting(false);
+        return;
+      }
+
       const updateData: any = {
         id: selectedUser.id,
         name: formData.name,
@@ -195,16 +242,21 @@ function AdminDashboard() {
         const updatedUsers = await getAllUsers({
           data: { limit: 100, offset: 0, sortBy: 'createdAt', sortOrder: 'desc' },
         });
-        setUsers(updatedUsers.data);
-        showToast('User updated successfully', 'success');
-        setSelectedView('users');
-        setSelectedUser(null);
-        resetForm();
+        if (updatedUsers.success) {
+          setUsers(updatedUsers.data);
+          toast.success('User updated successfully');
+          setSelectedView('users');
+          setSelectedUser(null);
+          resetForm();
+        } else {
+          toast.error('User updated but failed to reload list');
+        }
       } else {
-        showToast('Failed to update user', 'error');
+        toast.error(result.error || 'Failed to update user');
       }
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to update user', 'error');
+      console.error('Error updating user:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update user');
     } finally {
       setIsSubmitting(false);
     }
@@ -253,214 +305,195 @@ function AdminDashboard() {
             </Button>
           </div>
 
-          {/* Users Table */}
-          <div className="bg-white rounded-lg shadow">
-            <table className="min-w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100 border-b border-gray-200">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Created</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm flex gap-2">
-                      <Button
-                        onClick={() => handleEditUser(user)}
-                        className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </td>
+          {users.length === 0 ? (
+            <div className="bg-white rounded-lg p-8 text-center">
+              <p className="text-gray-600">No users found</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                    <th className="px-6 py-3 text-right text-sm font-semibold text-gray-900">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{user.role}</td>
+                      <td className="px-6 py-4 text-right text-sm space-x-2">
+                        <Button
+                          onClick={() => handleEditUser(user)}
+                          variant="outline"
+                          className="px-3 py-1"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteUser(user.id)}
+                          variant="destructive"
+                          className="px-3 py-1"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </Layout>
     );
   }
 
-  const isAddMode = selectedView === 'add';
+  const isEdit = selectedView === 'edit';
+
   return (
     <Layout requiredRole={['admin']}>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
-            {isAddMode ? 'Add New User' : 'Edit User'}
+            {isEdit ? 'Edit User' : 'Add New User'}
           </h1>
-          <button
+          <Button
             onClick={() => {
               setSelectedView('users');
               resetForm();
               setSelectedUser(null);
             }}
-            className="text-gray-600 hover:text-gray-900"
+            variant="outline"
           >
-            <X className="w-6 h-6" />
-          </button>
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
         </div>
 
-        <form onSubmit={isAddMode ? handleSubmitAdd : handleSubmitEdit} className="bg-white rounded-lg shadow p-6">
-          {/* Basic Information */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+        <div className="bg-white rounded-lg shadow p-6">
+          <form onSubmit={isEdit ? handleSubmitEdit : handleSubmitAdd} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Name *</Label>
+                <Label className="block text-sm font-medium text-gray-900 mb-1">Name *</Label>
                 <input
-                  id="name"
                   type="text"
-                  required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  placeholder="Enter user name"
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email *</Label>
+                <Label className="block text-sm font-medium text-gray-900 mb-1">Email *</Label>
                 <input
-                  id="email"
                   type="email"
-                  required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  placeholder="Enter email"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="password">Password {!isAddMode && '(leave empty to keep current)'}</Label>
+                <Label className="block text-sm font-medium text-gray-900 mb-1">
+                  Password {isEdit && '(Leave blank to keep current)'}*
+                </Label>
                 <input
-                  id="password"
                   type="password"
-                  required={isAddMode}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  placeholder="Enter password"
                 />
               </div>
               <div>
-                <Label htmlFor="role">Role *</Label>
+                <Label className="block text-sm font-medium text-gray-900 mb-1">Role *</Label>
                 <select
-                  id="role"
-                  required
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
                   <option value="">Select role</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Cashier">Cashier</option>
-                  <option value="Lab Technician">Lab Technician</option>
-                  <option value="Receptionist">Receptionist</option>
+                  <option value="admin">Admin</option>
+                  <option value="lab_tech">Lab Technician</option>
+                  <option value="cashier">Cashier</option>
+                  <option value="doctor">Doctor</option>
                 </select>
               </div>
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
-                <input
-                  id="phone"
-                  type="number"
-                  value={formData.phoneNumber || ''}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
             </div>
-          </div>
 
-          {/* Permissions */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Permissions</h2>
-            <div className="space-y-4">
-              {modules.map((module) => (
-                <div key={module.key} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold text-gray-900">{module.label}</h3>
-                    <div className="space-x-2">
+            <div>
+              <Label className="block text-sm font-medium text-gray-900 mb-3">Permissions</Label>
+              <div className="space-y-4">
+                {modules.map((module) => (
+                  <div key={module.key} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-gray-900">{module.label}</h4>
                       <button
                         type="button"
-                        onClick={() => toggleAllPermissions(module.key, true)}
-                        className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
+                        onClick={() => {
+                          const hasAny = actions.some(
+                            (action) =>
+                              formData.permissions[module.key as keyof typeof formData.permissions]?.[action as keyof any]
+                          );
+                          toggleAllPermissions(module.key, !hasAny);
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-700"
                       >
-                        Grant All
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleAllPermissions(module.key, false)}
-                        className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
-                      >
-                        Revoke All
+                        Toggle All
                       </button>
                     </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {actions.map((action) => (
+                        <label key={action} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={
+                              formData.permissions[module.key as keyof typeof formData.permissions]?.[
+                                action as keyof any
+                              ] || false
+                            }
+                            onChange={() => togglePermission(module.key, action)}
+                            className="w-4 h-4 text-blue-600"
+                          />
+                          <span className="text-sm text-gray-700 capitalize">{action}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-4">
-                    {actions.map((action) => (
-                      <label key={action} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={
-                            formData.permissions[module.key as keyof typeof formData.permissions]?.[
-                              action as keyof any
-                            ] || false
-                          }
-                          onChange={() => togglePermission(module.key, action)}
-                          className="w-4 h-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700 capitalize">{action}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Submit Buttons */}
-          <div className="flex gap-3 justify-end">
-            <Button
-              type="button"
-              onClick={() => {
-                setSelectedView('users');
-                resetForm();
-                setSelectedUser(null);
-              }}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Saving...' : isAddMode ? 'Create User' : 'Update User'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                onClick={() => {
+                  setSelectedView('users');
+                  resetForm();
+                  setSelectedUser(null);
+                }}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {isSubmitting ? 'Saving...' : isEdit ? 'Update User' : 'Create User'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </Layout>
   );

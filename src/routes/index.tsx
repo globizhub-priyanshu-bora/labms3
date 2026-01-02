@@ -142,7 +142,7 @@ function AuthPage() {
           alt="Medical Laboratory"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 to-indigo-900/70"></div>
+        <div className="absolute inset-0"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">

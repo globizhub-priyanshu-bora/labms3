@@ -1,122 +1,52 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import {
-  Activity,
-  ChevronDown,
-  FlaskConical,
-  LayoutDashboard,
-  Menu,
-  Power,
-  Receipt,
-  Settings,
-  Stethoscope,
-  TestTube,
-  User,
-  Users,
-  X,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/components/ProtectedRoute';
-import { Button } from '@/components/ui/button';
-import { logoutUser } from '@/routes/apis/auth-apis';
-import { getLabInfo } from '@/routes/apis/lab-apis';
+import { ChevronDown, FlaskConical, Layout, LogOut, Menu, Users, Settings, MoreVertical, Home, Building2 } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from './ProtectedRoute';
 
-export const Navigation = () => {
-  const { user } = useAuth();
+export function Navigation() {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
-  const [labInfo, setLabInfo] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchLabInfo = async () => {
-      try {
-        const result = await getLabInfo();
-        if (result.success) {
-          setLabInfo(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching lab info:', error);
-      }
-    };
-
-    if (user) {
-      fetchLabInfo();
-    }
-  }, [user]);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
 
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-      navigate({ to: '/' });
-    } catch (error) {
-      console.error('Logout error:', error);
-      navigate({ to: '/' });
-    }
+    logout();
+    navigate({ to: '/login' });
   };
 
-  if (!user) {
-    return null;
-  }
-
-  const hasPermission = (module: string, action: string) => {
+  const hasPermission = (resource: string, action: string): boolean => {
     if (user.isAdmin) return true;
-    const permissions = user.permissions || {};
+    if (!user.permissions) return false;
 
-    if (permissions[module]?.[action] === true) {
-      return true;
-    }
-
-    const singularModule = module.replace(/s$/, '');
-    if (permissions[singularModule]?.[action] === true) {
-      return true;
-    }
-
-    if (action === 'read' && permissions[module]?.['view'] === true) {
-      return true;
-    }
-
-    return false;
+    const perms = user.permissions as Record<string, Record<string, boolean>>;
+    return perms?.[resource]?.[action] ?? false;
   };
 
   const getMenuItems = () => {
-    const items = [];
+    const items: any[] = [];
 
-    if (user.isAdmin) {
-      items.push({
-        type: 'dropdown',
-        label: 'User Management',
-        icon: Settings,
-      });
-    } else {
-      items.push({
-        to: '/dashboard',
-        label: 'Dashboard',
-        icon: LayoutDashboard,
-      });
-    }
-
-    if (hasPermission('patients', 'create') || hasPermission('patient', 'create')) {
+    if (hasPermission('patients', 'view') || hasPermission('patient', 'read')) {
       items.push({
         to: '/patients/register',
-        label: 'Register Patient',
-        icon: User,
+        label: 'Patient Registration',
+        icon: Users,
       });
     }
 
-    if (user.isAdmin || hasPermission('doctors', 'view') || hasPermission('doctors', 'create') || hasPermission('doctor', 'view') || hasPermission('doctor', 'create')) {
-      items.push({
-        to: '/doctors',
-        label: 'Doctors',
-        icon: Stethoscope,
-      });
-    }
-
-    if (hasPermission('tests', 'view') || hasPermission('tests', 'read') || hasPermission('test', 'read')) {
+    if (hasPermission('tests', 'view') || hasPermission('test', 'read')) {
       items.push({
         to: '/tests/',
         label: 'Tests',
-        icon: TestTube,
+        icon: Layout,
+      });
+    }
+
+    if (hasPermission('doctors', 'view') || hasPermission('doctor', 'read')) {
+      items.push({
+        to: '/doctors/',
+        label: 'Doctors',
+        icon: Users,
       });
     }
 
@@ -124,7 +54,7 @@ export const Navigation = () => {
       items.push({
         to: '/test-parameters/',
         label: 'Parameters',
-        icon: Activity,
+        icon: Settings,
       });
     }
 
@@ -132,14 +62,14 @@ export const Navigation = () => {
       items.push({
         to: '/bills/$id',
         label: 'Bills',
-        icon: Receipt,
+        icon: Layout,
       });
     }
 
     items.push({
       to: '/lab-management',
       label: 'Lab Management',
-      icon: LayoutDashboard,
+      icon: Layout,
     });
 
     return items;
@@ -166,45 +96,57 @@ export const Navigation = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">
-              {menuItems.map((item, index) => {
-                if (item.type === 'dropdown') {
-                  return (
-                    <div key={index} className="relative">
-                      <button
-                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                        className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md inline-flex items-center gap-1 transition-colors"
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showAdminDropdown && (
-                        <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                          <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <LayoutDashboard className="w-4 h-4" />
-                            Dashboard
-                          </Link>
-                          <Link to="/admin/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            User Management
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <Link
-                      key={index}
-                      to={item.to}
-                      className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md inline-flex items-center gap-2 transition-colors"
-                    >
-                      <item.icon className="w-4 h-4" />
-                      {item.label}
+              {menuItems.map((item, index) => (
+                <Link
+                  key={index}
+                  to={item.to}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md inline-flex items-center gap-2 transition-colors"
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* More Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md inline-flex items-center gap-1 transition-colors ml-2"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                  More
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showMoreDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                {showMoreDropdown && (
+                  <div className="absolute right-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                    {/* User Management */}
+                    {(user.isAdmin || hasPermission('users', 'view')) && (
+                      <Link to="/admin/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        User Management
+                      </Link>
+                    )}
+                    
+                    {/* Dashboard */}
+                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <Home className="w-4 h-4" />
+                      Dashboard
                     </Link>
-                  );
-                }
-              })}
+
+                    {/* Lab Details */}
+                    <button
+                      onClick={() => {
+                        setShowMoreDropdown(false);
+                        navigate({ to: '/lab-management' });
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Lab Details
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Right Section */}
@@ -218,19 +160,24 @@ export const Navigation = () => {
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden sm:inline text-sm font-medium text-gray-900">{user.name.split(' ')[0]}</span>
+                  <div className="hidden md:block">
+                    <p className="text-xs font-medium text-gray-700">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.role}</p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>
+
                 {showUserMenu && (
                   <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-200 text-xs text-gray-500">
-                      <p>{user.email}</p>
-                      <p className="text-blue-600 font-semibold">{user.isAdmin ? 'Administrator' : 'User'}</p>
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                     >
-                      <Power className="w-4 h-4" />
+                      <LogOut className="w-4 h-4" />
                       Logout
                     </button>
                   </div>
@@ -239,81 +186,70 @@ export const Navigation = () => {
 
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-700 hover:bg-gray-50 rounded-md"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="lg:hidden p-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
               >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                <Menu className="w-5 h-5" />
               </button>
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          {isMobileMenuOpen && (
-            <div className="lg:hidden pb-4 border-t border-gray-200 space-y-1">
-              {menuItems.map((item, index) => {
-                if (item.type === 'dropdown') {
-                  return (
-                    <div key={index} className="space-y-1">
-                      <button
-                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                        className="w-full text-left px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                        <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showAdminDropdown && (
-                        <>
-                          <Link to="/dashboard" className="ml-4 block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md flex items-center gap-2">
-                            <LayoutDashboard className="w-4 h-4" />
-                            Dashboard
-                          </Link>
-                          <Link to="/admin/dashboard" className="ml-4 block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            User Management
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <Link
-                      key={index}
-                      to={item.to}
-                      className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
-                    >
-                      <item.icon className="w-4 h-4" />
-                      {item.label}
-                    </Link>
-                  );
-                }
-              })}
-            </div>
-          )}
         </div>
       </nav>
 
-      {/* Lab Info Header */}
-      {labInfo && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto py-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{labInfo.name}</p>
-                <p className="text-xs text-gray-600 mt-0.5">Reg. No: {labInfo.registrationNumber || 'N/A'}</p>
-              </div>
-              <div className="text-xs text-gray-600">
-                <p>{labInfo.addressLine1}</p>
-              </div>
+      {/* Lab Info Bar */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Lab Information</p>
+              <p className="text-xs text-gray-600">Name: Your Laboratory | Registration: LAB-12345</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {showMobileMenu && (
+        <div className="lg:hidden bg-white border-b border-gray-200">
+          <div className="px-4 py-2 space-y-1">
+            {menuItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.to}
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <div className="border-t border-gray-200 pt-2 mt-2">
+              {(user.isAdmin || hasPermission('users', 'view')) && (
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                >
+                  User Management
+                </Link>
+              )}
+              <Link
+                to="/dashboard"
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/lab-management"
+                onClick={() => setShowMobileMenu(false)}
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+              >
+                Lab Details
+              </Link>
             </div>
           </div>
         </div>
       )}
     </>
   );
-};
+}

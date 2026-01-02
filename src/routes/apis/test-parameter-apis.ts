@@ -101,23 +101,15 @@ export const getAllTestParameters = createServerFn({ method: 'GET' })
   .handler(async ({ data, request }) => {
     try {
       const { limit, offset, sortBy, sortOrder } = data;
-      
+
       let labId: number;
       try {
         labId = await getLabIdFromRequest(request);
       } catch (error) {
         console.error('Error getting lab ID:', error);
-        // Return empty list instead of throwing to prevent deployment errors
-        return {
-          success: true,
-          data: [],
-          pagination: {
-            total: 0,
-            limit,
-            offset,
-            hasMore: false,
-          },
-        };
+        throw new Error(
+          error instanceof Error ? error.message : 'Failed to load lab context'
+        );
       }
 
       const orderByColumn = testParamSchema[sortBy];
@@ -150,8 +142,8 @@ export const getAllTestParameters = createServerFn({ method: 'GET' })
 
       return {
         success: true,
-        data: parameters.map(p => ({ 
-          ...p, 
+        data: parameters.map(p => ({
+          ...p,
           metadata: (p.metadata as any) || {},
           referenceRanges: (p.referenceRanges as any) || [] // NEW
         })),
@@ -164,17 +156,9 @@ export const getAllTestParameters = createServerFn({ method: 'GET' })
       };
     } catch (error) {
       console.error('Error fetching test parameters:', error);
-      // Return empty list instead of throwing to prevent deployment errors
-      return {
-        success: true,
-        data: [],
-        pagination: {
-          total: 0,
-          limit: 50,
-          offset: 0,
-          hasMore: false,
-        },
-      };
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to fetch test parameters'
+      );
     }
   });
 
@@ -221,8 +205,8 @@ export const searchTestParameters = createServerFn({ method: 'GET' })
 
       return {
         success: true,
-        data: parameters.map(p => ({ 
-          ...p, 
+        data: parameters.map(p => ({
+          ...p,
           metadata: (p.metadata as any) || {},
           referenceRanges: (p.referenceRanges as any) || []
         })),
@@ -264,8 +248,8 @@ export const getTestParameterById = createServerFn({ method: 'GET' })
 
       return {
         success: true,
-        data: { 
-          ...parameter, 
+        data: {
+          ...parameter,
           metadata: (parameter.metadata as any) || {},
           referenceRanges: (parameter.referenceRanges as any) || []
         },
@@ -337,8 +321,8 @@ export const updateTestParameter = createServerFn({ method: 'POST' })
       return {
         success: true,
         message: 'Test parameter updated successfully',
-        data: { 
-          ...updated, 
+        data: {
+          ...updated,
           metadata: (updated.metadata as any) || {},
           referenceRanges: (updated.referenceRanges as any) || []
         },
@@ -425,8 +409,8 @@ export const restoreTestParameter = createServerFn({ method: 'POST' })
       return {
         success: true,
         message: 'Test parameter restored successfully',
-        data: { 
-          ...restored, 
+        data: {
+          ...restored,
           metadata: (restored.metadata as any) || {},
           referenceRanges: (restored.referenceRanges as any) || []
         },
