@@ -84,14 +84,10 @@ function TestManagement() {
   const [parametersLoadError, setParametersLoadError] = useState<string | null>(null);
 
   // Parameter selection
-  const [selectedParameterIds, setSelectedParameterIds] = useState<number[]>(        
-    []
-  );
+  const [selectedParameterIds, setSelectedParameterIds] = useState<number[]>([]);
   const [calculatedPrice, setCalculatedPrice] = useState<string>('0.00');
   const [paramSearchQuery, setParamSearchQuery] = useState('');
-  const [filteredParameters, setFilteredParameters] = useState<TestParameter[]>(     
-    []
-  );
+  const [filteredParameters, setFilteredParameters] = useState<TestParameter[]>([]);
 
   const {
     register: registerAdd,
@@ -114,7 +110,6 @@ function TestManagement() {
     handleSubmit: handleSubmitSearch,
   } = useForm<{ query: string }>();
 
-  // Show loader error once
   useEffect(() => {
     if (initialData?.error) {
       setParametersLoadError(initialData.error);
@@ -342,42 +337,16 @@ function TestManagement() {
     <Layout>
       <div className="container mx-auto py-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Test Management</h1>
-          <Button
-            onClick={() => {
-              setIsAddModalOpen(true);
-              setSelectedParameterIds([]);
-              setCalculatedPrice('0.00');
-              resetAdd();
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Test
-          </Button>
-        </div>
-
-        {/* Search Section */}
-        <div className="mb-6">
-          <form onSubmit={handleSubmitSearch(onSearchTests)} className="flex gap-2">
-            <input
-              type="text"
-              {...registerSearch('query')}
-              placeholder="Search tests..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <Button type="submit" className="bg-gray-600 hover:bg-gray-700">
-              <Search className="w-4 h-4" />
-            </Button>
-          </form>
-        </div>
-
-        {/* Tests Table */}
-        {displayTests.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 mb-4">No tests found</p>
+        <div className="bg-white border border-gray-300 mb-4 p-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">
+                Test Management
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {displayTests.length} test(s) {isSearching && `for "${searchQuery}"`}
+              </p>
+            </div>
             <Button
               onClick={() => {
                 setIsAddModalOpen(true);
@@ -387,100 +356,184 @@ function TestManagement() {
               }}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              Click "Add Test" to create one
+              <Plus className="w-4 h-4 mr-2" />
+              Add Test
             </Button>
           </div>
-        ) : (
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                    Test Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                    Price (₹)
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                    Parameters
-                  </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayTests.map((test) => {
-                  const paramIds = (test.metadata as any)?.parameterIds || [];
-                  const paramNames = paramIds
-                    .map((id: number) => {
-                      const param = allParameters.find((p) => p.id === id);
-                      return param?.name || 'Unknown';
-                    })
-                    .join(', ');
+        </div>
 
-                  return (
-                    <tr
-                      key={test.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {test.name}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
-                        ₹{test.price}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
-                        {paramNames || '-'}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedTest(test);
-                            const paramIds = (test.metadata as any)?.parameterIds || [];
-                            setSelectedParameterIds(paramIds);
-                            setValueEdit('name', test.name);
-                            setValueEdit('price', test.price);
-                            setIsEditModalOpen(true);
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {/* Search Panel */}
+          <div className="lg:col-span-1">
+            <div className="bg-white border border-gray-300 p-4">
+              <h2 className="text-sm font-semibold text-gray-900 mb-3">
+                Search Tests
+              </h2>
+              <form onSubmit={handleSubmitSearch(onSearchTests)}>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  {...registerSearch('query')}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 text-sm mb-2"
+                />
+                <button
+                  type="submit"
+                  className="w-full px-3 py-2 bg-white border border-gray-400 text-gray-900 text-sm hover:bg-gray-50"
+                >
+                  <Search className="w-4 h-4 inline mr-1" />
+                  Search
+                </button>
+              </form>
 
-                            const calculatePrice = async () => {
-                              if (paramIds.length === 0) {
-                                setCalculatedPrice('0.00');
-                                return;
-                              }
-
-                              try {
-                                const result = await calculateTestPrice({
-                                  data: { parameterIds: paramIds },
-                                });
-                                if (result.success) {
-                                  setCalculatedPrice(result.totalPrice);
-                                }
-                              } catch (error) {
-                                console.error('Error calculating price:', error);
-                              }
-                            };
-
-                            calculatePrice();
-                          }}
-                          className="text-blue-600 hover:text-blue-800 mr-3"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onDeleteTest(test.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+              {isSearching && (
+                <Button
+                  onClick={() => {
+                    setIsSearching(false);
+                    setSearchResults([]);
+                    setSearchQuery('');
+                  }}
+                  className="w-full mt-2 px-3 py-2 text-sm"
+                >
+                  Clear Search
+                </Button>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Tests Table */}
+          <div className="lg:col-span-3">
+            <div className="bg-white border border-gray-300">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-300 bg-gray-50">
+                      <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                        Test Name
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                        Price (₹)
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                        Parameters
+                      </th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-900">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayTests.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-12 text-center">
+                          {isSearching ? (
+                            <div className="flex flex-col items-center justify-center">
+                              <AlertCircle className="w-12 h-12 text-gray-400 mb-3" />
+                              <p className="text-gray-700 font-medium text-base">
+                                No tests found
+                              </p>
+                              <p className="text-gray-500 text-sm mt-1">
+                                No results for "{searchQuery}"
+                              </p>
+                              <Button
+                                onClick={() => {
+                                  setIsSearching(false);
+                                  setSearchResults([]);
+                                  setSearchQuery('');
+                                }}
+                                className="mt-3 px-4 py-2 text-sm"
+                              >
+                                Clear Search
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center">
+                              <AlertCircle className="w-12 h-12 text-gray-400 mb-3" />
+                              <p className="text-gray-700 font-medium text-base">
+                                No tests created yet
+                              </p>
+                              <p className="text-gray-500 text-sm mt-1">
+                                Get started by adding your first test
+                              </p>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ) : (
+                      displayTests.map((test) => {
+                        const paramIds = (test.metadata as any)?.parameterIds || [];
+                        const paramNames = paramIds
+                          .map((id: number) => {
+                            const param = allParameters.find((p) => p.id === id);
+                            return param?.name || 'Unknown';
+                          })
+                          .join(', ');
+
+                        return (
+                          <tr
+                            key={test.id}
+                            className="border-b border-gray-200 hover:bg-gray-50"
+                          >
+                            <td className="px-4 py-3 text-gray-900 font-medium">
+                              {test.name}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700">
+                              ₹{test.price}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 text-xs">
+                              {paramNames || '-'}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <button
+                                onClick={() => {
+                                  setSelectedTest(test);
+                                  const paramIds = (test.metadata as any)?.parameterIds || [];
+                                  setSelectedParameterIds(paramIds);
+                                  setValueEdit('name', test.name);
+                                  setValueEdit('price', test.price);
+                                  setIsEditModalOpen(true);
+
+                                  const calculatePrice = async () => {
+                                    if (paramIds.length === 0) {
+                                      setCalculatedPrice('0.00');
+                                      return;
+                                    }
+
+                                    try {
+                                      const result = await calculatePrice({
+                                        data: { parameterIds: paramIds },
+                                      });
+                                      if (result.success) {
+                                        setCalculatedPrice(result.totalPrice);
+                                      }
+                                    } catch (error) {
+                                      console.error('Error calculating price:', error);
+                                    }
+                                  };
+
+                                  calculatePrice();
+                                }}
+                                className="text-blue-600 hover:text-blue-800 mr-3 inline"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => onDeleteTest(test.id)}
+                                className="text-red-600 hover:text-red-800 inline"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Add Modal */}
         {isAddModalOpen && (

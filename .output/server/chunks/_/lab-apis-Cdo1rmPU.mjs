@@ -1,6 +1,6 @@
 import { a as createServerRpc, c as createServerFn } from "./server.mjs";
 import { eq } from "drizzle-orm";
-import { b as db, l as labSchema } from "./session-manager-CtAttBZO.mjs";
+import { d as db, l as labSchema } from "./session-manager-CtAttBZO.mjs";
 import { g as getLabIdFromRequest } from "./helpers-BpXhOhAI.mjs";
 import "node:async_hooks";
 import "react/jsx-runtime";

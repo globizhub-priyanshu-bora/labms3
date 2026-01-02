@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestsIndexRouteImport } from './routes/tests/index'
 import { Route as TestParametersIndexRouteImport } from './routes/test-parameters/index'
 import { Route as LabManagementIndexRouteImport } from './routes/lab-management/index'
+import { Route as LabDetailsIndexRouteImport } from './routes/lab-details/index'
 import { Route as DoctorsIndexRouteImport } from './routes/doctors/index'
 import { Route as TestResultsTestIdRouteImport } from './routes/test-results/$testId'
 import { Route as PatientsRegisterRouteImport } from './routes/patients/register'
@@ -52,6 +53,11 @@ const TestParametersIndexRoute = TestParametersIndexRouteImport.update({
 const LabManagementIndexRoute = LabManagementIndexRouteImport.update({
   id: '/lab-management/',
   path: '/lab-management/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabDetailsIndexRoute = LabDetailsIndexRouteImport.update({
+  id: '/lab-details/',
+  path: '/lab-details/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DoctorsIndexRoute = DoctorsIndexRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/patients/register': typeof PatientsRegisterRoute
   '/test-results/$testId': typeof TestResultsTestIdRoute
   '/doctors': typeof DoctorsIndexRoute
+  '/lab-details': typeof LabDetailsIndexRoute
   '/lab-management': typeof LabManagementIndexRoute
   '/test-parameters': typeof TestParametersIndexRoute
   '/tests': typeof TestsIndexRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/patients/register': typeof PatientsRegisterRoute
   '/test-results/$testId': typeof TestResultsTestIdRoute
   '/doctors': typeof DoctorsIndexRoute
+  '/lab-details': typeof LabDetailsIndexRoute
   '/lab-management': typeof LabManagementIndexRoute
   '/test-parameters': typeof TestParametersIndexRoute
   '/tests': typeof TestsIndexRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/patients/register': typeof PatientsRegisterRoute
   '/test-results/$testId': typeof TestResultsTestIdRoute
   '/doctors/': typeof DoctorsIndexRoute
+  '/lab-details/': typeof LabDetailsIndexRoute
   '/lab-management/': typeof LabManagementIndexRoute
   '/test-parameters/': typeof TestParametersIndexRoute
   '/tests/': typeof TestsIndexRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/patients/register'
     | '/test-results/$testId'
     | '/doctors'
+    | '/lab-details'
     | '/lab-management'
     | '/test-parameters'
     | '/tests'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/patients/register'
     | '/test-results/$testId'
     | '/doctors'
+    | '/lab-details'
     | '/lab-management'
     | '/test-parameters'
     | '/tests'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/patients/register'
     | '/test-results/$testId'
     | '/doctors/'
+    | '/lab-details/'
     | '/lab-management/'
     | '/test-parameters/'
     | '/tests/'
@@ -205,6 +217,7 @@ export interface RootRouteChildren {
   PatientsRegisterRoute: typeof PatientsRegisterRoute
   TestResultsTestIdRoute: typeof TestResultsTestIdRoute
   DoctorsIndexRoute: typeof DoctorsIndexRoute
+  LabDetailsIndexRoute: typeof LabDetailsIndexRoute
   LabManagementIndexRoute: typeof LabManagementIndexRoute
   TestParametersIndexRoute: typeof TestParametersIndexRoute
   TestsIndexRoute: typeof TestsIndexRoute
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/lab-management'
       fullPath: '/lab-management'
       preLoaderRoute: typeof LabManagementIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab-details/': {
+      id: '/lab-details/'
+      path: '/lab-details'
+      fullPath: '/lab-details'
+      preLoaderRoute: typeof LabDetailsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/doctors/': {
@@ -325,6 +345,7 @@ const rootRouteChildren: RootRouteChildren = {
   PatientsRegisterRoute: PatientsRegisterRoute,
   TestResultsTestIdRoute: TestResultsTestIdRoute,
   DoctorsIndexRoute: DoctorsIndexRoute,
+  LabDetailsIndexRoute: LabDetailsIndexRoute,
   LabManagementIndexRoute: LabManagementIndexRoute,
   TestParametersIndexRoute: TestParametersIndexRoute,
   TestsIndexRoute: TestsIndexRoute,

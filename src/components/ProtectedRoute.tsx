@@ -1,7 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { hasRoleAccess } from '@/lib/permission-manager';
-import { getCurrentUser } from '@/routes/apis/auth-apis';
+import { getCurrentUser, logoutUser } from '@/routes/apis/auth-apis';
+import { toast } from '@/lib/toast';
 
 export interface User {
   id: number;
@@ -18,11 +19,13 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  logout: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -86,6 +89,25 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     checkAuth();
   }, [navigate, requiredRole]);
 
+  const handleLogout = async () => {
+    try {
+      const result = await logoutUser({});
+      if (result.success) {
+        toast.success('Logged out successfully');
+        setUser(null);
+        navigate({ to: '/' });
+      } else {
+        toast.error('Failed to logout');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to logout');
+      // Force logout even if API fails
+      setUser(null);
+      navigate({ to: '/' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -117,7 +139,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );
