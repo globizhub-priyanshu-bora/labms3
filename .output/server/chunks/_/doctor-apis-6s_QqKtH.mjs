@@ -1,7 +1,7 @@
 import { a as createServerRpc, c as createServerFn } from "./server.mjs";
 import { and, eq, isNull, desc, count, sql, or, ilike, ne } from "drizzle-orm";
 import { z } from "zod";
-import { b as db, f as doctorSchema } from "./session-manager-DRdZONnW.mjs";
+import { b as db, i as doctorSchema } from "./session-manager-DRdZONnW.mjs";
 import { g as getLabIdFromRequest } from "./helpers-VjNq_44e.mjs";
 import "node:async_hooks";
 import "react/jsx-runtime";

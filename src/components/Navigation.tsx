@@ -8,6 +8,7 @@ import {
   Power,
   Receipt,
   Settings,
+  Stethoscope,
   TestTube,
   User,
   Users,
@@ -87,6 +88,15 @@ export const Navigation = () => {
         to: '/patients/register',
         label: 'Register Patient',
         icon: User,
+      });
+    }
+
+    // Doctors - check doctors.view or doctors.create permission
+    if (user.isAdmin || hasPermission('doctors', 'view') || hasPermission('doctors', 'create') || hasPermission('doctor', 'view') || hasPermission('doctor', 'create')) {
+      items.push({
+        to: '/doctors',
+        label: 'Doctors',
+        icon: Stethoscope,
       });
     }
 
