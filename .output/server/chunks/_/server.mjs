@@ -3236,7 +3236,7 @@ function getResponse() {
   return event._res;
 }
 async function getStartManifest() {
-  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-D5pLe29u.mjs");
+  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-DyqZwbuR.mjs");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
@@ -3271,48 +3271,33 @@ async function getStartManifest() {
   };
   return manifest2;
 }
-const manifest = { "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba3022e2": {
-  functionName: "getTestResultData_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "1e92e183ed42b1d74db3b54756cfd5f78162e479fc4673dda7d49db2d69c20bb": {
-  functionName: "createTestResult_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "929a4bea83a025b51e4311bb07e0d243f872eafce12f7a17e06be306d1ef5852": {
-  functionName: "updateTestResult_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "adb057ad513135ccdbc5f79a5764efb8c875cd8d13f7d7f751fbeeae680d9bc8": {
-  functionName: "getTestResultByPatientTestId_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "534c7a3973e3c4fbc6d0c95627ea83bb341ed4ec6752a90e4e8648117b39c075": {
-  functionName: "deleteTestResult_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "5475319725572acce855b57c19cd438e43cd99a07395cfe8b8d128f757465d01": {
-  functionName: "getPatientTestsWithResults_createServerFn_handler",
-  importer: () => import("./test-results-api-D_5o8fZ0.mjs")
-}, "88b7c6e3e8e9d3afe9bdf1dfd993ff2f25f7170ff5fde2d644329132fdf4665e": {
-  functionName: "searchPatientByPhone_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "2ddda0a102698d7e2e60e969ca3027b5f8dec902c1d9ee8c29bf372338ae212f": {
-  functionName: "createPatientWithTests_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "c9be507217c9d475f5cba5ee979c2141ed64be11ff9f48e1c878f3708d0baa4e": {
-  functionName: "updatePatient_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "f8f2093574355cf432609ba4faa9b39fb7a5171543b629a6cd3c64f7408fb7e8": {
-  functionName: "getAllPatients_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "1623252efcf5f98b31b7afd9caf1cce613ab0f72ce8fbe6ade67a53eb62a9090": {
-  functionName: "searchPatients_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "e93e61986c068fd6b5a2df790e0d4bfd099cfba1320790f0df20de3eff8b9a6e": {
-  functionName: "getPatientWithTests_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "1265555554103ff0d20d4a9d183747da627d3933399077209b638800eab9673b": {
-  functionName: "getPatientById_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "dd13b1308a256d04473e96b98fba649f5d50a85253202169ef6b51704ca65a49": {
-  functionName: "bulkDeletePatients_createServerFn_handler",
-  importer: () => import("./patient-apis-FxYZakMj.mjs")
+const manifest = { "0c005628ac49757db198f125d1a498626067a86ca2f0f4afa5c9f1f0b43cc0dd": {
+  functionName: "registerUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "db4ebd3ba6391de77039712065a7b3d52b648b08a812676533a82e20375101ea": {
+  functionName: "setupLab_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "e1434429e00235720242889071d2b09e8d637d9040ab1de3dfc7cb37d0932728": {
+  functionName: "loginUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "f67c49cd0388d59a1b85369ceb7040fdc1fcfbb7f869ff006d5c879f6c993615": {
+  functionName: "logoutUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "d44e08e9022a7a8299e66f49a70beed8a64f1805d6343a463c02a86c05501596": {
+  functionName: "getCurrentUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "689e01ce4655f2fed02e9958da166f777fe71c702dd1f2d5d6197818f7df469e": {
+  functionName: "checkAuthorization_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "ef24663278daf8b75d14591dbe78c90f61ff559b5549291c84747406c4d727c3": {
+  functionName: "validateSessionEndpoint_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "e895c864166834f5e7cfc38efbc119082baecf5df853d01fb8b74b810657c204": {
+  functionName: "keepSessionAlive_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "0cad0243b984fee4b121caa3e1b2058a0cad1a95551393d388b3e525bd569647": {
+  functionName: "forceLogout_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
 }, "e8dd402e17590eb08d3d0bd24e3683c0f1d033b4a7e6aff487a22f37fd8e2618": {
   functionName: "registerDoctor_createServerFn_handler",
   importer: () => import("./doctor-apis-6s_QqKtH.mjs")
@@ -3343,54 +3328,6 @@ const manifest = { "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba30
 }, "b4feeef641f2188752d2b6bb947e53483e2ba00af311a54e59eb1a98f96416b4": {
   functionName: "getAllSpecializations_createServerFn_handler",
   importer: () => import("./doctor-apis-6s_QqKtH.mjs")
-}, "f92db8bdce09118a362d19980bc6e5e9abc700027626a5f05984458477de49a1": {
-  functionName: "getBillById_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "b3c59b70ed69a28aeba6173a683c0fcf6a93e795e2005231ce2e85f74120a05a": {
-  functionName: "getBillByInvoiceNumber_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "f780fb6379629698039faabfe5c4d357289df1cb4637e17d3d91bc5e3fc62997": {
-  functionName: "getAllBills_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "076f63fa49b79d248b4ec77ce1f7ad773960f371253cb297d5d34e30562a7e6f": {
-  functionName: "updateBill_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "4f80872130608d08ab0eabb65a626bd4fd8bc1344f43710133f97b863985b048": {
-  functionName: "markBillAsPaid_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "ef4ee991aefd308a17fdb0c859c233536daeaa3078e8376a00c82487335d1b25": {
-  functionName: "searchBills_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "97ddf72c598e878cce67459468ec608dac486714304c1d3038b759ce0c485f24": {
-  functionName: "createBill_createServerFn_handler",
-  importer: () => import("./bill-apis-DQso6xAi.mjs")
-}, "0c005628ac49757db198f125d1a498626067a86ca2f0f4afa5c9f1f0b43cc0dd": {
-  functionName: "registerUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "db4ebd3ba6391de77039712065a7b3d52b648b08a812676533a82e20375101ea": {
-  functionName: "setupLab_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "e1434429e00235720242889071d2b09e8d637d9040ab1de3dfc7cb37d0932728": {
-  functionName: "loginUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "f67c49cd0388d59a1b85369ceb7040fdc1fcfbb7f869ff006d5c879f6c993615": {
-  functionName: "logoutUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "d44e08e9022a7a8299e66f49a70beed8a64f1805d6343a463c02a86c05501596": {
-  functionName: "getCurrentUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "689e01ce4655f2fed02e9958da166f777fe71c702dd1f2d5d6197818f7df469e": {
-  functionName: "checkAuthorization_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "ef24663278daf8b75d14591dbe78c90f61ff559b5549291c84747406c4d727c3": {
-  functionName: "validateSessionEndpoint_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "e895c864166834f5e7cfc38efbc119082baecf5df853d01fb8b74b810657c204": {
-  functionName: "keepSessionAlive_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "0cad0243b984fee4b121caa3e1b2058a0cad1a95551393d388b3e525bd569647": {
-  functionName: "forceLogout_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
 }, "866e013d630692cace706289cf850c03b2e8b7525cadcd4706c7a4ca0f40c872": {
   functionName: "createTestParameter_createServerFn_handler",
   importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
@@ -3436,21 +3373,84 @@ const manifest = { "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba30
 }, "56f6533ed64761137df96642690335ce6fa8490cac01f564994b6518a93b36b2": {
   functionName: "restoreTest_createServerFn_handler",
   importer: () => import("./test-apis-Di1MqVfe.mjs")
+}, "f92db8bdce09118a362d19980bc6e5e9abc700027626a5f05984458477de49a1": {
+  functionName: "getBillById_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "b3c59b70ed69a28aeba6173a683c0fcf6a93e795e2005231ce2e85f74120a05a": {
+  functionName: "getBillByInvoiceNumber_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "f780fb6379629698039faabfe5c4d357289df1cb4637e17d3d91bc5e3fc62997": {
+  functionName: "getAllBills_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "076f63fa49b79d248b4ec77ce1f7ad773960f371253cb297d5d34e30562a7e6f": {
+  functionName: "updateBill_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "4f80872130608d08ab0eabb65a626bd4fd8bc1344f43710133f97b863985b048": {
+  functionName: "markBillAsPaid_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "ef4ee991aefd308a17fdb0c859c233536daeaa3078e8376a00c82487335d1b25": {
+  functionName: "searchBills_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "97ddf72c598e878cce67459468ec608dac486714304c1d3038b759ce0c485f24": {
+  functionName: "createBill_createServerFn_handler",
+  importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "88b7c6e3e8e9d3afe9bdf1dfd993ff2f25f7170ff5fde2d644329132fdf4665e": {
+  functionName: "searchPatientByPhone_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "2ddda0a102698d7e2e60e969ca3027b5f8dec902c1d9ee8c29bf372338ae212f": {
+  functionName: "createPatientWithTests_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "c9be507217c9d475f5cba5ee979c2141ed64be11ff9f48e1c878f3708d0baa4e": {
+  functionName: "updatePatient_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "f8f2093574355cf432609ba4faa9b39fb7a5171543b629a6cd3c64f7408fb7e8": {
+  functionName: "getAllPatients_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "1623252efcf5f98b31b7afd9caf1cce613ab0f72ce8fbe6ade67a53eb62a9090": {
+  functionName: "searchPatients_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "e93e61986c068fd6b5a2df790e0d4bfd099cfba1320790f0df20de3eff8b9a6e": {
+  functionName: "getPatientWithTests_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "1265555554103ff0d20d4a9d183747da627d3933399077209b638800eab9673b": {
+  functionName: "getPatientById_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
+}, "dd13b1308a256d04473e96b98fba649f5d50a85253202169ef6b51704ca65a49": {
+  functionName: "bulkDeletePatients_createServerFn_handler",
+  importer: () => import("./patient-apis-FxYZakMj.mjs")
 }, "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469e288": {
   functionName: "createUser_createServerFn_handler",
-  importer: () => import("./user-apis-CVC6WGmO.mjs")
+  importer: () => import("./user-apis-Cf9i-5aN.mjs")
 }, "16cf2e1d8110b30236f86f4674f057330fda70584dc3fc37bf8ad42310052c35": {
   functionName: "getAllUsers_createServerFn_handler",
-  importer: () => import("./user-apis-CVC6WGmO.mjs")
+  importer: () => import("./user-apis-Cf9i-5aN.mjs")
 }, "a4cfac5ab013dbdfc4fce6241a731ff2b94401c72afa868c8033486e498f35d3": {
   functionName: "getUserById_createServerFn_handler",
-  importer: () => import("./user-apis-CVC6WGmO.mjs")
+  importer: () => import("./user-apis-Cf9i-5aN.mjs")
 }, "50299f7d500516c957d4cebbe56ccc63ce8e3d70a295fb4e98ed657ef1ab5427": {
   functionName: "updateUser_createServerFn_handler",
-  importer: () => import("./user-apis-CVC6WGmO.mjs")
+  importer: () => import("./user-apis-Cf9i-5aN.mjs")
 }, "1d4bd1f7515f038c36c633a90c3e0dbe63010b09b76b2b2bbfebda95954528b2": {
   functionName: "deleteUser_createServerFn_handler",
-  importer: () => import("./user-apis-CVC6WGmO.mjs")
+  importer: () => import("./user-apis-Cf9i-5aN.mjs")
+}, "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba3022e2": {
+  functionName: "getTestResultData_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
+}, "1e92e183ed42b1d74db3b54756cfd5f78162e479fc4673dda7d49db2d69c20bb": {
+  functionName: "createTestResult_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
+}, "929a4bea83a025b51e4311bb07e0d243f872eafce12f7a17e06be306d1ef5852": {
+  functionName: "updateTestResult_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
+}, "adb057ad513135ccdbc5f79a5764efb8c875cd8d13f7d7f751fbeeae680d9bc8": {
+  functionName: "getTestResultByPatientTestId_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
+}, "534c7a3973e3c4fbc6d0c95627ea83bb341ed4ec6752a90e4e8648117b39c075": {
+  functionName: "deleteTestResult_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
+}, "5475319725572acce855b57c19cd438e43cd99a07395cfe8b8d128f757465d01": {
+  functionName: "getPatientTestsWithResults_createServerFn_handler",
+  importer: () => import("./test-results-api-Btgpxf8y.mjs")
 } };
 async function getServerFnById(id) {
   const serverFnInfo = manifest[id];
@@ -3731,7 +3731,7 @@ function createStartHandler(cb) {
   let routerEntry = null;
   const getEntries = async () => {
     if (routerEntry === null) {
-      routerEntry = await import("./router-CekfRpIN.mjs").then(function(n) {
+      routerEntry = await import("./router-B48m2_K0.mjs").then(function(n) {
         return n.a0;
       }).then((n) => n.X);
     }

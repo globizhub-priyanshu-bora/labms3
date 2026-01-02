@@ -66,8 +66,14 @@ export const Navigation = () => {
   const getMenuItems = () => {
     const items = [];
 
-    // Show Dashboard for non-admins only (admins get dropdown)
-    if (!user.isAdmin) {
+    // Show Dashboard or User Management dropdown for admins
+    if (user.isAdmin) {
+      items.push({
+        type: 'dropdown',
+        label: 'User Management',
+        icon: Settings,
+      });
+    } else {
       items.push({
         to: '/dashboard',
         label: 'Dashboard',
@@ -137,62 +143,48 @@ export const Navigation = () => {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-1">
-            {/* Admin Dropdown or Regular Items */}
-            {user.isAdmin ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:bg-gray-100"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>User Management</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Admin Dropdown Menu */}
-                {showAdminDropdown && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-300 py-1 z-50">
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setShowAdminDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link
-                      to="/admin/dashboard"
-                      onClick={() => setShowAdminDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <Users className="w-4 h-4" />
-                      <span>User Management</span>
-                    </Link>
-                  </div>
-                )}
-              </div>
-            ) : (
-              menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors"
-                    activeProps={{
-                      className: 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-black rounded-md',
-                    }}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })
-            )}
-
-            {/* Other menu items for non-admin users */}
-            {!user.isAdmin && menuItems.map((item) => {
+            {menuItems.map((item: any) => {
               const Icon = item.icon;
+              
+              // Handle dropdown for admin
+              if (item.type === 'dropdown') {
+                return (
+                  <div key="admin-dropdown" className="relative">
+                    <button
+                      onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:bg-gray-100"
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Admin Dropdown Menu */}
+                    {showAdminDropdown && (
+                      <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-300 py-1 z-50">
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setShowAdminDropdown(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setShowAdminDropdown(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          <Users className="w-4 h-4" />
+                          <span>User Management</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              // Handle regular menu items
               return (
                 <Link
                   key={item.to}
@@ -280,53 +272,57 @@ export const Navigation = () => {
                 </div>
               </div>
 
-              {/* Mobile Admin Dropdown */}
-              {user.isAdmin && (
-                <>
-                  <button
-                    onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Settings className="w-5 h-5" />
-                      <span>User Management</span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Mobile Admin Submenu */}
-                  {showAdminDropdown && (
-                    <div className="pl-4 space-y-2">
-                      <Link
-                        to="/dashboard"
-                        onClick={() => {
-                          setShowAdminDropdown(false);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
-                      >
-                        <LayoutDashboard className="w-5 h-5" />
-                        Dashboard
-                      </Link>
-                      <Link
-                        to="/admin/dashboard"
-                        onClick={() => {
-                          setShowAdminDropdown(false);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
-                      >
-                        <Users className="w-5 h-5" />
-                        User Management
-                      </Link>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Mobile Menu Items (for non-admin) */}
-              {!user.isAdmin && menuItems.map((item) => {
+              {/* Mobile Menu Items */}
+              {menuItems.map((item: any) => {
                 const Icon = item.icon;
+
+                // Handle dropdown for admin
+                if (item.type === 'dropdown') {
+                  return (
+                    <div key="admin-mobile-dropdown">
+                      <button
+                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                        className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-5 h-5" />
+                          <span>{item.label}</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {/* Mobile Admin Submenu */}
+                      {showAdminDropdown && (
+                        <div className="pl-4 space-y-2">
+                          <Link
+                            to="/dashboard"
+                            onClick={() => {
+                              setShowAdminDropdown(false);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                          >
+                            <LayoutDashboard className="w-5 h-5" />
+                            Dashboard
+                          </Link>
+                          <Link
+                            to="/admin/dashboard"
+                            onClick={() => {
+                              setShowAdminDropdown(false);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                          >
+                            <Users className="w-5 h-5" />
+                            User Management
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Handle regular menu items
                 return (
                   <Link
                     key={item.to}
