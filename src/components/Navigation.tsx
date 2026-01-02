@@ -162,7 +162,7 @@ export const Navigation = () => {
                   <div key="admin-dropdown" className="relative">
                     <Button
                       onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:bg-gray-100"
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md"
                     >
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
@@ -310,7 +310,7 @@ export const Navigation = () => {
                               setShowAdminDropdown(false);
                               setIsMobileMenuOpen(false);
                             }}
-                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
                           >
                             <LayoutDashboard className="w-5 h-5" />
                             Dashboard
@@ -321,7 +321,7 @@ export const Navigation = () => {
                               setShowAdminDropdown(false);
                               setIsMobileMenuOpen(false);
                             }}
-                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
                           >
                             <Users className="w-5 h-5" />
                             User Management
