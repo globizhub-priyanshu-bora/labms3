@@ -327,16 +327,16 @@ function DoctorManagement() {
 
         {/* Add Modal */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className=" rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Add New Doctor</h3>
-                <button
+                <Button
                   onClick={() => setIsAddModalOpen(false)}
                   className="text-gray-600 hover:text-gray-900"
                 >
                   <X className="w-6 h-6" />
-                </button>
+                </Button>
               </div>
               <form onSubmit={handleSubmitAdd(onAddDoctor)} className="space-y-4">
                 <div>
@@ -405,7 +405,7 @@ function DoctorManagement() {
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Edit Doctor</h3>
-                <button
+                <Button
                   onClick={() => {
                     setIsEditModalOpen(false);
                     setSelectedDoctor(null);
@@ -413,7 +413,7 @@ function DoctorManagement() {
                   className="text-gray-600 hover:text-gray-900"
                 >
                   <X className="w-6 h-6" />
-                </button>
+                </Button>
               </div>
               <form onSubmit={handleSubmitEdit(onEditDoctor)} className="space-y-4">
                 <div>
