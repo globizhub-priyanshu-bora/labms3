@@ -26,13 +26,13 @@ export function Navigation() {
       const result = await logout();
       toast.success('Logged out successfully');
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/';
       }, 500);
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Logout failed, redirecting...');
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/';
       }, 1000);
     }
   };
@@ -176,7 +176,7 @@ export function Navigation() {
 function NavLink({ to, active, children, onClick }: { to: string; active?: boolean; children: React.ReactNode; onClick?: () => void }) {
   const navigate = useNavigate();
   return (
-    <button
+    <Button
       onClick={() => { onClick?.(); navigate({ to }); }}
       className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
         active 
@@ -185,7 +185,7 @@ function NavLink({ to, active, children, onClick }: { to: string; active?: boole
       }`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

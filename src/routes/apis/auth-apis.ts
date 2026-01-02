@@ -524,7 +524,7 @@ export const forceLogout = createServerFn({ method: 'POST' })
       return {
         success: true,
         message: 'Logged out successfully',
-        redirectTo: '/auth/login',
+        redirectTo: '/',
       };
     } catch (error) {
       console.error('Logout error:', error);

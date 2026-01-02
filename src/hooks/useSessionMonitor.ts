@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useCallback, useEffect } from 'react';
 
 /**
  * Hook to monitor session health and handle unexpected logouts
@@ -20,7 +20,7 @@ export function useSessionMonitor() {
         // Session is invalid, redirect to login
         console.warn('❌ Session validation failed, redirecting to login');
         localStorage.removeItem('lastRoute');
-        navigate({ to: '/auth/login' });
+        navigate({ to: '/' });
       }
     } catch (error) {
       console.error('Error validating session:', error);
