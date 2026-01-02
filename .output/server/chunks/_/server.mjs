@@ -3236,7 +3236,7 @@ function getResponse() {
   return event._res;
 }
 async function getStartManifest() {
-  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-JTgc2wAj.mjs");
+  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-D5pLe29u.mjs");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
@@ -3271,49 +3271,7 @@ async function getStartManifest() {
   };
   return manifest2;
 }
-const manifest = { "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469e288": {
-  functionName: "createUser_createServerFn_handler",
-  importer: () => import("./user-apis-Cf9i-5aN.mjs")
-}, "16cf2e1d8110b30236f86f4674f057330fda70584dc3fc37bf8ad42310052c35": {
-  functionName: "getAllUsers_createServerFn_handler",
-  importer: () => import("./user-apis-Cf9i-5aN.mjs")
-}, "a4cfac5ab013dbdfc4fce6241a731ff2b94401c72afa868c8033486e498f35d3": {
-  functionName: "getUserById_createServerFn_handler",
-  importer: () => import("./user-apis-Cf9i-5aN.mjs")
-}, "50299f7d500516c957d4cebbe56ccc63ce8e3d70a295fb4e98ed657ef1ab5427": {
-  functionName: "updateUser_createServerFn_handler",
-  importer: () => import("./user-apis-Cf9i-5aN.mjs")
-}, "1d4bd1f7515f038c36c633a90c3e0dbe63010b09b76b2b2bbfebda95954528b2": {
-  functionName: "deleteUser_createServerFn_handler",
-  importer: () => import("./user-apis-Cf9i-5aN.mjs")
-}, "0c005628ac49757db198f125d1a498626067a86ca2f0f4afa5c9f1f0b43cc0dd": {
-  functionName: "registerUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "db4ebd3ba6391de77039712065a7b3d52b648b08a812676533a82e20375101ea": {
-  functionName: "setupLab_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "e1434429e00235720242889071d2b09e8d637d9040ab1de3dfc7cb37d0932728": {
-  functionName: "loginUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "f67c49cd0388d59a1b85369ceb7040fdc1fcfbb7f869ff006d5c879f6c993615": {
-  functionName: "logoutUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "d44e08e9022a7a8299e66f49a70beed8a64f1805d6343a463c02a86c05501596": {
-  functionName: "getCurrentUser_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "689e01ce4655f2fed02e9958da166f777fe71c702dd1f2d5d6197818f7df469e": {
-  functionName: "checkAuthorization_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "ef24663278daf8b75d14591dbe78c90f61ff559b5549291c84747406c4d727c3": {
-  functionName: "validateSessionEndpoint_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "e895c864166834f5e7cfc38efbc119082baecf5df853d01fb8b74b810657c204": {
-  functionName: "keepSessionAlive_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "0cad0243b984fee4b121caa3e1b2058a0cad1a95551393d388b3e525bd569647": {
-  functionName: "forceLogout_createServerFn_handler",
-  importer: () => import("./auth-apis-CfYoZWC4.mjs")
-}, "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba3022e2": {
+const manifest = { "9544b1a68e9027e2205ba603b1d881923ac3d31cf90aafd163820d16ba3022e2": {
   functionName: "getTestResultData_createServerFn_handler",
   importer: () => import("./test-results-api-D_5o8fZ0.mjs")
 }, "1e92e183ed42b1d74db3b54756cfd5f78162e479fc4673dda7d49db2d69c20bb": {
@@ -3355,27 +3313,36 @@ const manifest = { "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469
 }, "dd13b1308a256d04473e96b98fba649f5d50a85253202169ef6b51704ca65a49": {
   functionName: "bulkDeletePatients_createServerFn_handler",
   importer: () => import("./patient-apis-FxYZakMj.mjs")
-}, "866e013d630692cace706289cf850c03b2e8b7525cadcd4706c7a4ca0f40c872": {
-  functionName: "createTestParameter_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "9c8f0900160bae46a845536c1c878b268fdec731ff2c8bc5c6f18073dca787c4": {
-  functionName: "getAllTestParameters_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "0388eaaa61b7f81a1942a5e405b75a7191876ac918e5ba9a72e580ed165c34f3": {
-  functionName: "searchTestParameters_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "cff0fc9e1e697678742ffcecccbf079f07115c4109ce1d08d008914f2f490a10": {
-  functionName: "getTestParameterById_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "89320401cbd68179409c80ee1d04eb642a9512b752b4b3c464616a03ad0c3eea": {
-  functionName: "updateTestParameter_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "1751a1fc416db730f7528d13b6531bdb2b51d1129b7b4d17421297247f982d3c": {
-  functionName: "deleteTestParameter_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
-}, "187263fe889609bed8f64002c35873b22ba56af05158412d579789d39e3a0680": {
-  functionName: "restoreTestParameter_createServerFn_handler",
-  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "e8dd402e17590eb08d3d0bd24e3683c0f1d033b4a7e6aff487a22f37fd8e2618": {
+  functionName: "registerDoctor_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "145982feac1e984b1cef6b5523f0eb1e7c41d91af7983fc05b0328d6c10759f6": {
+  functionName: "getAllDoctors_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "e41548d8794ad3413f5f64cb80d858e746fbaa33ea6383b9b514d8079fc0286b": {
+  functionName: "searchDoctors_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "d370673239cbcaddeee0b905aa8fae5daff42009a9e089864251255533f765ea": {
+  functionName: "getDoctorById_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "08ec65a6b61510a6035c5d92dabce42347377649b13f70fabdf89b17d2f1f8fb": {
+  functionName: "updateDoctor_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "3e743f8de56b84d00b0dfb65853cccba90375ac6b709a29e25593f0c7329d022": {
+  functionName: "deleteDoctor_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "12abd73b5933ccd6900df5a4730dd5d90c469edca3c73b18a3c763773e2e54e6": {
+  functionName: "permanentlyDeleteDoctor_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "4b490d806da08483ec5e58551edab8c156b1126c04faaba9f8231b0a7283a58d": {
+  functionName: "restoreDoctor_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "687d43d01dd45244ff29a9f700e5e4f671c268dff00500d71e17031a9e01b8bd": {
+  functionName: "getDoctorsBySpecialization_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
+}, "b4feeef641f2188752d2b6bb947e53483e2ba00af311a54e59eb1a98f96416b4": {
+  functionName: "getAllSpecializations_createServerFn_handler",
+  importer: () => import("./doctor-apis-6s_QqKtH.mjs")
 }, "f92db8bdce09118a362d19980bc6e5e9abc700027626a5f05984458477de49a1": {
   functionName: "getBillById_createServerFn_handler",
   importer: () => import("./bill-apis-DQso6xAi.mjs")
@@ -3397,6 +3364,54 @@ const manifest = { "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469
 }, "97ddf72c598e878cce67459468ec608dac486714304c1d3038b759ce0c485f24": {
   functionName: "createBill_createServerFn_handler",
   importer: () => import("./bill-apis-DQso6xAi.mjs")
+}, "0c005628ac49757db198f125d1a498626067a86ca2f0f4afa5c9f1f0b43cc0dd": {
+  functionName: "registerUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "db4ebd3ba6391de77039712065a7b3d52b648b08a812676533a82e20375101ea": {
+  functionName: "setupLab_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "e1434429e00235720242889071d2b09e8d637d9040ab1de3dfc7cb37d0932728": {
+  functionName: "loginUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "f67c49cd0388d59a1b85369ceb7040fdc1fcfbb7f869ff006d5c879f6c993615": {
+  functionName: "logoutUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "d44e08e9022a7a8299e66f49a70beed8a64f1805d6343a463c02a86c05501596": {
+  functionName: "getCurrentUser_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "689e01ce4655f2fed02e9958da166f777fe71c702dd1f2d5d6197818f7df469e": {
+  functionName: "checkAuthorization_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "ef24663278daf8b75d14591dbe78c90f61ff559b5549291c84747406c4d727c3": {
+  functionName: "validateSessionEndpoint_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "e895c864166834f5e7cfc38efbc119082baecf5df853d01fb8b74b810657c204": {
+  functionName: "keepSessionAlive_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "0cad0243b984fee4b121caa3e1b2058a0cad1a95551393d388b3e525bd569647": {
+  functionName: "forceLogout_createServerFn_handler",
+  importer: () => import("./auth-apis-CfYoZWC4.mjs")
+}, "866e013d630692cace706289cf850c03b2e8b7525cadcd4706c7a4ca0f40c872": {
+  functionName: "createTestParameter_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "9c8f0900160bae46a845536c1c878b268fdec731ff2c8bc5c6f18073dca787c4": {
+  functionName: "getAllTestParameters_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "0388eaaa61b7f81a1942a5e405b75a7191876ac918e5ba9a72e580ed165c34f3": {
+  functionName: "searchTestParameters_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "cff0fc9e1e697678742ffcecccbf079f07115c4109ce1d08d008914f2f490a10": {
+  functionName: "getTestParameterById_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "89320401cbd68179409c80ee1d04eb642a9512b752b4b3c464616a03ad0c3eea": {
+  functionName: "updateTestParameter_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "1751a1fc416db730f7528d13b6531bdb2b51d1129b7b4d17421297247f982d3c": {
+  functionName: "deleteTestParameter_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
+}, "187263fe889609bed8f64002c35873b22ba56af05158412d579789d39e3a0680": {
+  functionName: "restoreTestParameter_createServerFn_handler",
+  importer: () => import("./test-parameter-apis-vtCFt9Fv.mjs")
 }, "eb1d14c8d6a9b119928a19fe1231bc4ad90c2383e46a87da4e08c98f410062fa": {
   functionName: "calculateTestPrice_createServerFn_handler",
   importer: () => import("./test-apis-Di1MqVfe.mjs")
@@ -3421,36 +3436,21 @@ const manifest = { "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469
 }, "56f6533ed64761137df96642690335ce6fa8490cac01f564994b6518a93b36b2": {
   functionName: "restoreTest_createServerFn_handler",
   importer: () => import("./test-apis-Di1MqVfe.mjs")
-}, "e8dd402e17590eb08d3d0bd24e3683c0f1d033b4a7e6aff487a22f37fd8e2618": {
-  functionName: "registerDoctor_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "145982feac1e984b1cef6b5523f0eb1e7c41d91af7983fc05b0328d6c10759f6": {
-  functionName: "getAllDoctors_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "e41548d8794ad3413f5f64cb80d858e746fbaa33ea6383b9b514d8079fc0286b": {
-  functionName: "searchDoctors_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "d370673239cbcaddeee0b905aa8fae5daff42009a9e089864251255533f765ea": {
-  functionName: "getDoctorById_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "08ec65a6b61510a6035c5d92dabce42347377649b13f70fabdf89b17d2f1f8fb": {
-  functionName: "updateDoctor_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "3e743f8de56b84d00b0dfb65853cccba90375ac6b709a29e25593f0c7329d022": {
-  functionName: "deleteDoctor_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "12abd73b5933ccd6900df5a4730dd5d90c469edca3c73b18a3c763773e2e54e6": {
-  functionName: "permanentlyDeleteDoctor_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "4b490d806da08483ec5e58551edab8c156b1126c04faaba9f8231b0a7283a58d": {
-  functionName: "restoreDoctor_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "687d43d01dd45244ff29a9f700e5e4f671c268dff00500d71e17031a9e01b8bd": {
-  functionName: "getDoctorsBySpecialization_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
-}, "b4feeef641f2188752d2b6bb947e53483e2ba00af311a54e59eb1a98f96416b4": {
-  functionName: "getAllSpecializations_createServerFn_handler",
-  importer: () => import("./doctor-apis-DnJh_IDA.mjs")
+}, "2ebbe331e59ad581a81bb5e90852666a0c0e00b858cc4ca3b8b770c45469e288": {
+  functionName: "createUser_createServerFn_handler",
+  importer: () => import("./user-apis-CVC6WGmO.mjs")
+}, "16cf2e1d8110b30236f86f4674f057330fda70584dc3fc37bf8ad42310052c35": {
+  functionName: "getAllUsers_createServerFn_handler",
+  importer: () => import("./user-apis-CVC6WGmO.mjs")
+}, "a4cfac5ab013dbdfc4fce6241a731ff2b94401c72afa868c8033486e498f35d3": {
+  functionName: "getUserById_createServerFn_handler",
+  importer: () => import("./user-apis-CVC6WGmO.mjs")
+}, "50299f7d500516c957d4cebbe56ccc63ce8e3d70a295fb4e98ed657ef1ab5427": {
+  functionName: "updateUser_createServerFn_handler",
+  importer: () => import("./user-apis-CVC6WGmO.mjs")
+}, "1d4bd1f7515f038c36c633a90c3e0dbe63010b09b76b2b2bbfebda95954528b2": {
+  functionName: "deleteUser_createServerFn_handler",
+  importer: () => import("./user-apis-CVC6WGmO.mjs")
 } };
 async function getServerFnById(id) {
   const serverFnInfo = manifest[id];
@@ -3731,7 +3731,7 @@ function createStartHandler(cb) {
   let routerEntry = null;
   const getEntries = async () => {
     if (routerEntry === null) {
-      routerEntry = await import("./router-Dy2QNYkF.mjs").then(function(n) {
+      routerEntry = await import("./router-CekfRpIN.mjs").then(function(n) {
         return n.a0;
       }).then((n) => n.X);
     }

@@ -1,13 +1,16 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Activity,
+  ChevronDown,
   FlaskConical,
   LayoutDashboard,
   Menu,
   Power,
   Receipt,
+  Settings,
   TestTube,
   User,
+  Users,
   X,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -20,6 +23,7 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -38,38 +42,32 @@ export const Navigation = () => {
   const hasPermission = (module: string, action: string) => {
     if (user.isAdmin) return true;
     const permissions = user.permissions || {};
-    
+
     // Check various permission structure formats
     // Format 1: permissions.patients.create
     if (permissions[module]?.[action] === true) {
       return true;
     }
-    
+
     // Format 2: permissions.patient.create (singular)
     const singularModule = module.replace(/s$/, '');
     if (permissions[singularModule]?.[action] === true) {
       return true;
     }
-    
+
     // Format 3: permissions.patients.view (for 'read' action)
     if (action === 'read' && permissions[module]?.['view'] === true) {
       return true;
     }
-    
+
     return false;
   };
 
   const getMenuItems = () => {
     const items = [];
 
-    // Show Dashboard for non-admins, Admin Dashboard for admins
-    if (user.isAdmin) {
-      items.push({
-        to: '/admin/dashboard',
-        label: 'Admin Dashboard',
-        icon: LayoutDashboard,
-      });
-    } else {
+    // Show Dashboard for non-admins only (admins get dropdown)
+    if (!user.isAdmin) {
       items.push({
         to: '/dashboard',
         label: 'Dashboard',
@@ -77,8 +75,8 @@ export const Navigation = () => {
       });
     }
 
-    // Patient Registration - check patients.create or patient.create permission
-    if (hasPermission('patients', 'create') || hasPermission('patient', 'create')) {
+    // Patient Registration - check patients.create or patient.create permission     
+    if (hasPermission('patients', 'create') || hasPermission('patient', 'create')) { 
       items.push({
         to: '/patients/register',
         label: 'Register Patient',
@@ -131,7 +129,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Lab Name */}
           <Link to={user.isAdmin ? '/admin/dashboard' : '/dashboard'} className="flex items-center gap-2 group">
-            <div className="bg-black text-white p-2 rounded-lg transition-colors">
+            <div className="bg-black text-white p-2 rounded-lg transition-colors">   
               <FlaskConical className="w-6 h-6" />
             </div>
             <span className="text-xl font-bold text-black hidden sm:inline">GlobPathology</span>
@@ -139,7 +137,61 @@ export const Navigation = () => {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-1">
-            {menuItems.map((item) => {
+            {/* Admin Dropdown or Regular Items */}
+            {user.isAdmin ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:bg-gray-100"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>User Management</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Admin Dropdown Menu */}
+                {showAdminDropdown && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-300 py-1 z-50">
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setShowAdminDropdown(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      to="/admin/dashboard"
+                      onClick={() => setShowAdminDropdown(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span>User Management</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ) : (
+              menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors"
+                    activeProps={{
+                      className: 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-black rounded-md',
+                    }}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })
+            )}
+
+            {/* Other menu items for non-admin users */}
+            {!user.isAdmin && menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
@@ -228,8 +280,52 @@ export const Navigation = () => {
                 </div>
               </div>
 
-              {/* Mobile Menu Items */}
-              {menuItems.map((item) => {
+              {/* Mobile Admin Dropdown */}
+              {user.isAdmin && (
+                <>
+                  <button
+                    onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                    className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Settings className="w-5 h-5" />
+                      <span>User Management</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Mobile Admin Submenu */}
+                  {showAdminDropdown && (
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to="/dashboard"
+                        onClick={() => {
+                          setShowAdminDropdown(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Dashboard
+                      </Link>
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => {
+                          setShowAdminDropdown(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors ml-4 border-l-2 border-gray-300"
+                      >
+                        <Users className="w-5 h-5" />
+                        User Management
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Mobile Menu Items (for non-admin) */}
+              {!user.isAdmin && menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link

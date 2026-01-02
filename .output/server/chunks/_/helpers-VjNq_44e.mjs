@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { g as getSessionFromRequest, b as getSession, d as db, u as userSchema } from "./session-manager-DRdZONnW.mjs";
+import { g as getSessionFromRequest, i as getSession, d as db, u as userSchema } from "./session-manager-DRdZONnW.mjs";
 const getLabIdFromRequest = async (request) => {
   const sessionId = getSessionFromRequest(request);
   if (!sessionId) {
@@ -34,6 +34,6 @@ const getUserFromRequest = async (request) => {
   return user;
 };
 export {
-  getLabIdFromRequest as a,
-  getUserFromRequest as g
+  getUserFromRequest as a,
+  getLabIdFromRequest as g
 };
