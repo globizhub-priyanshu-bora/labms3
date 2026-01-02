@@ -290,16 +290,16 @@ export const Navigation = () => {
                 if (item.type === 'dropdown') {
                   return (
                     <div key="admin-mobile-dropdown">
-                      <button
+                      <Button
                         onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                        className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-lg"
                       >
                         <div className="flex items-center gap-3">
                           <Icon className="w-5 h-5" />
                           <span>{item.label}</span>
                         </div>
                         <ChevronDown className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} />
-                      </button>
+                      </Button>
 
                       {/* Mobile Admin Submenu */}
                       {showAdminDropdown && (
