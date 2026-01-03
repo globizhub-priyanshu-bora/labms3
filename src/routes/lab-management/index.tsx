@@ -508,7 +508,7 @@ function LabManagement() {
                       className="w-4 h-4 rounded border-gray-300"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-900">Lab ID</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-900">Patient ID</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-900">Patient</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-900">Registered</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-900">Contact</th>

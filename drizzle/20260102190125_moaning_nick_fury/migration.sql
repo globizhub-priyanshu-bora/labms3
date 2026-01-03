@@ -154,4 +154,20 @@ ALTER TABLE "testParamSchema" ADD CONSTRAINT "testParamSchema_labId_labSchema_id
 ALTER TABLE "testResultsSchema" ADD CONSTRAINT "testResultsSchema_labId_labSchema_id_fkey" FOREIGN KEY ("labId") REFERENCES "labSchema"("id");--> statement-breakpoint
 ALTER TABLE "testResultsSchema" ADD CONSTRAINT "testResultsSchema_patientTestId_patientTestsSchema_id_fkey" FOREIGN KEY ("patientTestId") REFERENCES "patientTestsSchema"("id");--> statement-breakpoint
 ALTER TABLE "testSchema" ADD CONSTRAINT "testSchema_labId_labSchema_id_fkey" FOREIGN KEY ("labId") REFERENCES "labSchema"("id");--> statement-breakpoint
-ALTER TABLE "userSchema" ADD CONSTRAINT "userSchema_labId_labSchema_id_fkey" FOREIGN KEY ("labId") REFERENCES "labSchema"("id");
+ALTER TABLE "userSchema" ADD CONSTRAINT "userSchema_labId_labSchema_id_fkey" FOREIGN KEY ("labId") REFERENCES "labSchema"("id");--> statement-breakpoint
+CREATE TABLE "sessionSchema" (
+	"id" text PRIMARY KEY NOT NULL,
+	"userId" integer NOT NULL,
+	"labId" integer NOT NULL,
+	"email" text NOT NULL,
+	"role" text NOT NULL,
+	"isAdmin" boolean DEFAULT false,
+	"permissions" json,
+	"hasCompletedSetup" boolean DEFAULT false,
+	"createdAt" timestamp DEFAULT CURRENT_TIMESTAMP,
+	"expiresAt" timestamp NOT NULL
+);--> statement-breakpoint
+CREATE INDEX "sessionSchema_userId_idx" ON "sessionSchema" ("userId");--> statement-breakpoint
+CREATE INDEX "sessionSchema_expiresAt_idx" ON "sessionSchema" ("expiresAt");--> statement-breakpoint
+ALTER TABLE "sessionSchema" ADD CONSTRAINT "sessionSchema_userId_userSchema_id_fkey" FOREIGN KEY ("userId") REFERENCES "userSchema"("id");--> statement-breakpoint
+ALTER TABLE "sessionSchema" ADD CONSTRAINT "sessionSchema_labId_labSchema_id_fkey" FOREIGN KEY ("labId") REFERENCES "labSchema"("id");

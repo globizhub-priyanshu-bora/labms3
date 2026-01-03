@@ -1,4 +1,7 @@
 import { parse } from 'cookie';
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { sessionSchema } from '@/db/schema';
 
 export interface SessionData {
   userId: number;
@@ -41,7 +44,7 @@ const cleanupInterval = setInterval(() => {
   }
   
   if (cleaned > 0) {
-    console.log(`Ì∑π Cleaned up ${cleaned} expired sessions`);
+    console.log(`ÔøΩÔøΩÔøΩ Cleaned up ${cleaned} expired sessions`);
   }
 }, 5 * 60 * 1000);
 
@@ -57,12 +60,41 @@ export const generateSessionId = (): string => {
 export const createSession = (userData: Omit<SessionData, 'createdAt' | 'lastActivity'>): string => {
   const sessionId = generateSessionId();
   const now = Date.now();
+  const expiresAt = new Date(now + SESSION_MAX_AGE_MS);
   
-  sessions.set(sessionId, {
+  const sessionData: SessionData = {
     ...userData,
     createdAt: now,
     lastActivity: now,
-  });
+  };
+  
+  // Store in memory
+  sessions.set(sessionId, sessionData);
+  
+  // Store in database for Vercel serverless persistence (non-blocking)
+  try {
+    // Use setImmediate to avoid blocking the request
+    setImmediate(() => {
+      try {
+        db.insert(sessionSchema).values({
+          id: sessionId,
+          userId: userData.userId,
+          labId: userData.labId,
+          email: userData.email,
+          role: userData.role,
+          isAdmin: userData.isAdmin,
+          permissions: userData.permissions,
+          hasCompletedSetup: userData.hasCompletedSetup,
+          expiresAt,
+        });
+        console.log('‚úÖ Session stored in database:', sessionId);
+      } catch (error) {
+        console.warn('Failed to store session in database:', error);
+      }
+    });
+  } catch (error) {
+    console.warn('Could not queue session storage:', error);
+  }
   
   console.log('‚úÖ Session created:', sessionId, 'for user:', userData.email);
   return sessionId;
@@ -72,7 +104,7 @@ export const getSession = (sessionId: string): SessionData | null => {
   const session = sessions.get(sessionId);
   
   if (!session) {
-    console.log('‚ùå Session not found:', sessionId);
+    console.log('‚ùå Session not found in memory:', sessionId);
     return null;
   }
 
@@ -99,6 +131,82 @@ export const getSession = (sessionId: string): SessionData | null => {
   return session;
 };
 
+// Async version that checks database if session not in memory (for Vercel serverless)
+export const getSessionAsync = async (sessionId: string): Promise<SessionData | null> => {
+  // First try memory
+  const session = sessions.get(sessionId);
+  
+  if (session) {
+    const now = Date.now();
+    
+    // Check inactivity timeout
+    if (now - session.lastActivity > SESSION_TIMEOUT_MS) {
+      console.log('‚ùå Session inactive timeout:', sessionId);
+      sessions.delete(sessionId);
+      return null;
+    }
+    
+    // Check absolute max age
+    if (now - session.createdAt > SESSION_MAX_AGE_MS) {
+      console.log('‚ùå Session max age exceeded:', sessionId);
+      sessions.delete(sessionId);
+      return null;
+    }
+
+    // Update last activity
+    session.lastActivity = now;
+    console.log('‚úÖ Session valid (from memory):', sessionId);
+    return session;
+  }
+
+  // Session not in memory - try to get from database (for Vercel serverless)
+  console.log('Session not in memory, checking database:', sessionId);
+  try {
+    const [dbSession] = await db
+      .select()
+      .from(sessionSchema)
+      .where(eq(sessionSchema.id, sessionId))
+      .limit(1);
+    
+    if (!dbSession) {
+      console.log('‚ùå Session not found in database:', sessionId);
+      return null;
+    }
+
+    // Check if expired
+    if (new Date() > new Date(dbSession.expiresAt)) {
+      console.log('‚ùå Session expired in database:', sessionId);
+      try {
+        await db.delete(sessionSchema).where(eq(sessionSchema.id, sessionId));
+      } catch (error) {
+        console.warn('Failed to delete expired session:', error);
+      }
+      return null;
+    }
+
+    // Restore to memory
+    const restoredSession: SessionData = {
+      userId: dbSession.userId,
+      email: dbSession.email,
+      name: dbSession.email.split('@')[0], // Use email prefix as name
+      role: dbSession.role,
+      isAdmin: dbSession.isAdmin,
+      permissions: dbSession.permissions,
+      labId: dbSession.labId,
+      hasCompletedSetup: dbSession.hasCompletedSetup,
+      createdAt: new Date(dbSession.createdAt).getTime(),
+      lastActivity: Date.now(),
+    };
+
+    sessions.set(sessionId, restoredSession);
+    console.log('‚úÖ Session restored from database:', sessionId);
+    return restoredSession;
+  } catch (error) {
+    console.error('Error checking database session:', error);
+    return null;
+  }
+};
+
 export const updateSession = (sessionId: string, updates: Partial<SessionData>): boolean => {
   const session = sessions.get(sessionId);
   
@@ -119,6 +227,14 @@ export const updateSession = (sessionId: string, updates: Partial<SessionData>):
 
 export const deleteSession = (sessionId: string): void => {
   sessions.delete(sessionId);
+  
+  // Also delete from database
+  try {
+    db.delete(sessionSchema).where(eq(sessionSchema.id, sessionId)).run();
+  } catch (error) {
+    console.warn('Failed to delete session from database:', error);
+  }
+  
   console.log('‚úÖ Session deleted:', sessionId);
 };
 
@@ -135,7 +251,7 @@ export const getSessionFromRequest = (request: Request): string | null => {
     const sessionId = cookies.sessionId || null;
     
     if (sessionId) {
-      console.log('Ì¥ç Session ID from cookie:', sessionId);
+      console.log('ÔøΩÔøΩÔøΩ Session ID from cookie:', sessionId);
     }
     
     return sessionId;

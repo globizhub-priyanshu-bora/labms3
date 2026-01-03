@@ -150,3 +150,16 @@ export const reportSchema = p.pgTable('reportSchema', {
   updatedAt: p.timestamp().defaultNow(),
   deletedAt: p.timestamp()
 });
+// Session table for persistent session storage (critical for Vercel serverless)
+export const sessionSchema = p.pgTable('sessionSchema', {
+  id: p.text().primaryKey(),
+  userId: p.integer().references(() => userSchema.id).notNull(),
+  labId: p.integer().references(() => labSchema.id).notNull(),
+  email: p.text().notNull(),
+  role: p.text().notNull(),
+  isAdmin: p.boolean().default(false),
+  permissions: p.json(),
+  hasCompletedSetup: p.boolean().default(false),
+  createdAt: p.timestamp().defaultNow(),
+  expiresAt: p.timestamp().notNull(), // Session expiration time
+});

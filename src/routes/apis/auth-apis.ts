@@ -11,6 +11,7 @@ import {
   createSession,
   deleteSession,
   getSession,
+  getSessionAsync,
   getSessionFromRequest,
   updateSession,
 } from '@/lib/session-manager';
@@ -324,7 +325,8 @@ export const getCurrentUser = createServerFn({ method: 'GET' })
         };
       }
 
-      const session = getSession(sessionId);
+      // Use async version to check database on Vercel serverless
+      const session = await getSessionAsync(sessionId);
 
       if (!session) {
         return {
