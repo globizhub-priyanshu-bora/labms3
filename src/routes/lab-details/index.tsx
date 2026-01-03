@@ -46,7 +46,7 @@ function LabDetails() {
             <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Building2 className="w-6 h-6 text-blue-600" />
-                Basic Information
+                Basic Information 
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
