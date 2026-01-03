@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Edit, Search, Trash2, UserPlus, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -374,6 +374,7 @@ function DoctorsPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Add Modal */}
         {isAddModalOpen && (
@@ -594,7 +595,6 @@ function DoctorsPage() {
             </div>
           </div>
         )}
-        </div>
       </div>
     </Layout>
   );

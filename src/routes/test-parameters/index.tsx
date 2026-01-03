@@ -435,7 +435,7 @@ function TestParameterManagement() {
             </div>
           </div>
         </div>
-      </div>
+        )}
 
       {/* Add/Edit Modal with Reference Ranges */}
       {(isAddModalOpen || isEditModalOpen) && (

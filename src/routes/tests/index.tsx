@@ -547,6 +547,7 @@ function TestManagement() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Add Modal */}
         {isAddModalOpen && (
@@ -902,7 +903,6 @@ function TestManagement() {
             </div>
           </div>
         )}
-        </div>
       </div>
     </Layout>
   );

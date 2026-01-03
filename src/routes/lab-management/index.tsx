@@ -347,20 +347,6 @@ function LabManagement() {
 
   const hasActiveFilters = Object.values(activeFilters).some(v => v && v !== '');
 
-  const StatCard = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${color}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-600 font-medium">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-        </div>
-        <div className={`p-3 rounded-lg ${color.split(' ')[0]} bg-opacity-10`}>
-          <Icon className={`w-6 h-6 ${color.split(' ')[1]}`} />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-full mx-auto">
