@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/lib/toast';
 import {
   deleteDoctor,
   getAllDoctors,
@@ -12,7 +13,6 @@ import {
   searchDoctors,
   updateDoctor,
 } from '@/routes/apis/doctor-apis';
-import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/doctors/')({
   component: DoctorsPage,
