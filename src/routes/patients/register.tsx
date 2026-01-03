@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { AlertCircle, RefreshCw, Search, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { BillModal } from '@/components/BillModal';
 import { Layout } from '@/components/Layout';
@@ -13,19 +13,11 @@ import {
   searchPatientByPhone,
 } from '@/routes/apis/patient-apis';
 import { getAllTests } from '@/routes/apis/test-apis';
+
 export const Route = createFileRoute('/patients/register')({
   component: PatientRegistration,
-  loader: async () => {
-    const [testsResult, doctorsResult] = await Promise.all([
-      getAllTests({
-        data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
-      }),
-      getAllDoctors({
-        data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
-      }),
-    ]);
-    return { tests: testsResult, doctors: doctorsResult };
-  },
+  // Remove loader to avoid serverless session issues on Vercel
+  // Data will be fetched client-side instead
 });
 
 interface Test {
@@ -63,7 +55,6 @@ interface TestFormData {
 }
 
 function PatientRegistration() {
-  const loaderData = Route.useLoaderData();
   const [step, setStep] = useState<'search' | 'register' | 'tests' | 'payment'>('search');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [existingPatient, setExistingPatient] = useState<any>(null);
@@ -74,9 +65,40 @@ function PatientRegistration() {
   const [paymentStatus, setPaymentStatus] = useState<'paid' | 'unpaid'>('unpaid');
   const [isProcessing, setIsProcessing] = useState(false);
   const [testFormData, setTestFormData] = useState<TestFormData | null>(null);
+  const [allTests, setAllTests] = useState<Test[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  const allTests = loaderData?.tests?.data || [];
-  const allDoctors = loaderData?.doctors?.data || [];
+  // Fetch tests and doctors on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoadingData(true);
+        const [testsResult, doctorsResult] = await Promise.all([
+          getAllTests({
+            data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
+          }),
+          getAllDoctors({
+            data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
+          }),
+        ]);
+
+        if (testsResult?.success && testsResult.data) {
+          setAllTests(testsResult.data);
+        }
+        if (doctorsResult?.success && doctorsResult.data) {
+          setAllDoctors(doctorsResult.data);
+        }
+      } catch (error) {
+        console.error('Error fetching tests and doctors:', error);
+        toast.error('Failed to load tests and doctors');
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const {
     register: registerPatient,
@@ -269,8 +291,18 @@ function PatientRegistration() {
           </p>
         </div>
 
+        {/* Loading State */}
+        {isLoadingData && (
+          <div className="bg-white border border-gray-300 p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
+            </div>
+            <p className="text-gray-600">Loading tests and doctors...</p>
+          </div>
+        )}
+
         {/* Step 1: Phone Search */}
-        {step === 'search' && (
+        {!isLoadingData && step === 'search' && (
           <div className="bg-white border border-gray-300 p-8">
             <div className="max-w-md mx-auto">
               <div className="flex justify-center mb-6">
@@ -307,7 +339,7 @@ function PatientRegistration() {
         )}
 
         {/* Step 2: Patient Registration Form */}
-        {step === 'register' && (
+        {!isLoadingData && step === 'register' && (
           <div className="bg-white border border-gray-300 p-6">
             <div className="flex items-center gap-3 mb-6">
               <UserPlus className="w-6 h-6 text-gray-700" />
@@ -460,7 +492,7 @@ function PatientRegistration() {
         )}
 
         {/* Step 3: Test Selection */}
-        {step === 'tests' && (
+        {!isLoadingData && step === 'tests' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Test Selection Panel */}
             <div className="lg:col-span-2 bg-white border border-gray-300 p-4">
@@ -634,7 +666,7 @@ function PatientRegistration() {
         )}
 
         {/* Step 4: Payment Confirmation */}
-        {step === 'payment' && (
+        {!isLoadingData && step === 'payment' && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white border border-gray-300 p-8 rounded-lg">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
