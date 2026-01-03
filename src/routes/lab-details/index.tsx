@@ -35,7 +35,7 @@ function LabDetails() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Lab Details</h1>
-          <p className="text-gray-600">Complete information about your laboratory</p>
+          <p className="text-gray-600">Complete information about your laboratory </p>
         </div>
 
         {/* Main Content */}
