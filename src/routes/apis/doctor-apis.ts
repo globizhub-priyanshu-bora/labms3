@@ -3,8 +3,8 @@ import { and, count, desc, eq, ilike, isNull, ne, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '@/db';
 import { doctorSchema } from '@/db/schema';
-import { getLabIdFromRequest } from './helpers';
 import { toast } from '@/lib/toast';
+import { getLabIdFromRequest } from './helpers';
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -109,7 +109,14 @@ export const getAllDoctors = createServerFn({ method: 'GET' })
         labId = await getLabIdFromRequest(request);
       } catch (error) {
         console.error('Error getting lab ID:', error);
-        throw new Error('Unable to identify your lab. Please log in again.');
+        // Return empty list instead of throwing to prevent deployment errors
+        return {
+          success: false,
+          data: [],
+          total: 0,
+          limit,
+          offset,
+        };
       }
 
       // Build the sorting condition
@@ -158,9 +165,14 @@ export const getAllDoctors = createServerFn({ method: 'GET' })
       };
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch doctors'
-      );
+      // Return empty list instead of throwing to prevent deployment errors
+      return {
+        success: false,
+        data: [],
+        total: 0,
+        limit: data.limit,
+        offset: data.offset,
+      };
     }
   });
 

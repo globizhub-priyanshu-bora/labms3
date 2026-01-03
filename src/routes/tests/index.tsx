@@ -18,32 +18,6 @@ import { getAllTestParameters } from '@/routes/apis/test-parameter-apis';
 
 export const Route = createFileRoute('/tests/')({
   component: TestManagement,
-  loader: async () => {
-    try {
-      const [testsResult, parametersResult] = await Promise.all([
-        getAllTests({
-          data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
-        }),
-        getAllTestParameters({
-          data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
-        }),
-      ]);
-      
-      return { 
-        tests: testsResult, 
-        parameters: parametersResult,
-        error: null 
-      };
-    } catch (error) {
-      console.error('Error loading test data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load test data';
-      return {
-        tests: { success: true, data: [] },
-        parameters: { success: true, data: [] },
-        error: errorMessage
-      };
-    }
-  },
 });
 
 interface Test {
@@ -70,11 +44,8 @@ interface TestFormData {
 }
 
 function TestManagement() {
-  const initialData = Route.useLoaderData();
-  const [tests, setTests] = useState<Test[]>(initialData?.tests?.data || []);        
-  const [allParameters, setAllParameters] = useState<TestParameter[]>(
-    initialData?.parameters?.data || []
-  );
+  const [tests, setTests] = useState<Test[]>([]);        
+  const [allParameters, setAllParameters] = useState<TestParameter[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
@@ -82,6 +53,7 @@ function TestManagement() {
   const [searchResults, setSearchResults] = useState<Test[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [parametersLoadError, setParametersLoadError] = useState<string | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Parameter selection
   const [selectedParameterIds, setSelectedParameterIds] = useState<number[]>([]);
@@ -89,33 +61,38 @@ function TestManagement() {
   const [paramSearchQuery, setParamSearchQuery] = useState('');
   const [filteredParameters, setFilteredParameters] = useState<TestParameter[]>([]);
 
-  const {
-    register: registerAdd,
-    handleSubmit: handleSubmitAdd,
-    reset: resetAdd,
-    setValue: setValueAdd,
-    formState: { errors: errorsAdd, isSubmitting: isSubmittingAdd },
-  } = useForm<TestFormData>();
-
-  const {
-    register: registerEdit,
-    handleSubmit: handleSubmitEdit,
-    reset: resetEdit,
-    setValue: setValueEdit,
-    formState: { errors: errorsEdit, isSubmitting: isSubmittingEdit },
-  } = useForm<TestFormData>();
-
-  const {
-    register: registerSearch,
-    handleSubmit: handleSubmitSearch,
-  } = useForm<{ query: string }>();
-
+  // Fetch tests and parameters on component mount
   useEffect(() => {
-    if (initialData?.error) {
-      setParametersLoadError(initialData.error);
-      toast.error(initialData.error);
-    }
-  }, [initialData?.error]);
+    const fetchData = async () => {
+      try {
+        setIsLoadingData(true);
+        const [testsResult, parametersResult] = await Promise.all([
+          getAllTests({
+            data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
+          }),
+          getAllTestParameters({
+            data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
+          }),
+        ]);
+        
+        if (testsResult?.success && testsResult.data) {
+          setTests(testsResult.data);
+        }
+        if (parametersResult?.success && parametersResult.data) {
+          setAllParameters(parametersResult.data);
+        }
+      } catch (error) {
+        console.error('Error loading test data:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load test data';
+        setParametersLoadError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (paramSearchQuery) {
@@ -150,6 +127,28 @@ function TestManagement() {
 
     calculatePrice();
   }, [selectedParameterIds, setValueAdd]);
+
+  // Form hooks
+  const {
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    reset: resetAdd,
+    setValue: setValueAdd,
+    formState: { errors: errorsAdd, isSubmitting: isSubmittingAdd },
+  } = useForm<TestFormData>();
+
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    reset: resetEdit,
+    setValue: setValueEdit,
+    formState: { errors: errorsEdit, isSubmitting: isSubmittingEdit },
+  } = useForm<TestFormData>();
+
+  const {
+    register: registerSearch,
+    handleSubmit: handleSubmitSearch,
+  } = useForm<{ query: string }>();
 
   const loadTests = async () => {
     try {
@@ -362,6 +361,20 @@ function TestManagement() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoadingData && (
+          <div className="bg-white border border-gray-300 p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <svg className="w-8 h-8 text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <p className="text-gray-600">Loading tests and parameters...</p>
+          </div>
+        )}
+
+        {!isLoadingData && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Search Panel */}
           <div className="lg:col-span-1">
@@ -889,6 +902,7 @@ function TestManagement() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </Layout>
   );
