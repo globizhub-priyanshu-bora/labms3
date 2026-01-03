@@ -1,11 +1,11 @@
-import { toast } from '@/lib/toast';
 import { createFileRoute } from '@tanstack/react-router';
 import { AlertCircle, Edit, Plus, Search, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/lib/toast';
 import {
   createTestParameter,
   deleteTestParameter,
@@ -16,12 +16,6 @@ import {
 
 export const Route = createFileRoute('/test-parameters/')({
   component: TestParameterManagement,
-  loader: async () => {
-    const result = await getAllTestParameters({
-      data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
-    });
-    return result;
-  },
 });
 
 interface ReferenceRange {
@@ -52,10 +46,7 @@ interface TestParameterFormData {
 }
 
 function TestParameterManagement() {
-  const initialData = Route.useLoaderData();
-  const [parameters, setParameters] = useState<TestParameter[]>(
-    initialData?.data || []
-  );
+  const [parameters, setParameters] = useState<TestParameter[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedParameter, setSelectedParameter] =
@@ -63,9 +54,32 @@ function TestParameterManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<TestParameter[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Reference Ranges State
   const [referenceRanges, setReferenceRanges] = useState<ReferenceRange[]>([]);
+
+  // Fetch parameters on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoadingData(true);
+        const result = await getAllTestParameters({
+          data: { limit: 100, offset: 0, sortBy: 'name', sortOrder: 'asc' },
+        });
+        if (result?.success && result.data) {
+          setParameters(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading test parameters:', error);
+        toast.error('Failed to load test parameters');
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const {
     register: registerAdd,
@@ -259,6 +273,20 @@ function TestParameterManagement() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoadingData && (
+          <div className="bg-white border border-gray-300 p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <svg className="w-8 h-8 text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <p className="text-gray-600">Loading test parameters...</p>
+          </div>
+        )}
+
+        {!isLoadingData && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Search Panel */}
           <div className="lg:col-span-1">
@@ -625,8 +653,9 @@ function TestParameterManagement() {
             </form>
           </div>
         </div>
-      )}
-    </div>
+        )}
+      </div>
+      </div>
     </Layout>
   );
 }
