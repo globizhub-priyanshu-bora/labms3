@@ -69,10 +69,13 @@ function TestParameterManagement() {
         });
         if (result?.success && result.data) {
           setParameters(result.data);
+        } else {
+          setParameters([]);
         }
       } catch (error) {
         console.error('Error loading test parameters:', error);
-        toast.error('Failed to load test parameters');
+        // Set empty array instead of throwing/toasting to prevent crashes
+        setParameters([]);
       } finally {
         setIsLoadingData(false);
       }

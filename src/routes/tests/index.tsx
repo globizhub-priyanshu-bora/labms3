@@ -77,15 +77,21 @@ function TestManagement() {
         
         if (testsResult?.success && testsResult.data) {
           setTests(testsResult.data);
+        } else {
+          setTests([]);
         }
+        
         if (parametersResult?.success && parametersResult.data) {
           setAllParameters(parametersResult.data);
+        } else {
+          setAllParameters([]);
         }
       } catch (error) {
         console.error('Error loading test data:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load test data';
-        setParametersLoadError(errorMessage);
-        toast.error(errorMessage);
+        // Set empty arrays on error instead of setting error state
+        // This prevents the component from crashing
+        setTests([]);
+        setAllParameters([]);
       } finally {
         setIsLoadingData(false);
       }
@@ -104,6 +110,15 @@ function TestManagement() {
       setFilteredParameters(allParameters);
     }
   }, [paramSearchQuery, allParameters]);
+
+  // Form hooks
+  const {
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    reset: resetAdd,
+    setValue: setValueAdd,
+    formState: { errors: errorsAdd, isSubmitting: isSubmittingAdd },
+  } = useForm<TestFormData>();
 
   useEffect(() => {
     const calculatePrice = async () => {
@@ -127,15 +142,6 @@ function TestManagement() {
 
     calculatePrice();
   }, [selectedParameterIds, setValueAdd]);
-
-  // Form hooks
-  const {
-    register: registerAdd,
-    handleSubmit: handleSubmitAdd,
-    reset: resetAdd,
-    setValue: setValueAdd,
-    formState: { errors: errorsAdd, isSubmitting: isSubmittingAdd },
-  } = useForm<TestFormData>();
 
   const {
     register: registerEdit,

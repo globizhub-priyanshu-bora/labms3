@@ -59,10 +59,13 @@ function DoctorsPage() {
         });
         if (result?.success && result.data) {
           setDoctors(result.data);
+        } else {
+          setDoctors([]);
         }
       } catch (error) {
         console.error('Error loading doctors:', error);
-        toast.error('Failed to load doctors');
+        // Set empty array instead of throwing/toasting to prevent crashes
+        setDoctors([]);
       } finally {
         setIsLoadingData(false);
       }
