@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { ChevronDown, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from '@/lib/toast';
+import { getLabInfo } from '@/routes/apis/lab-apis';
 import { useAuth } from './ProtectedRoute';
 import { Button } from './ui/button';
 
@@ -15,12 +16,45 @@ const MENU_ITEMS = [
   { to: '/more', label: 'More', isDropdown: true },
 ];
 
+// Helper function to check if a route is active
+function isRouteActive(pathname: string, routePath: string): boolean {
+  // If route has parameters (contains $), check if pathname starts with the base path
+  if (routePath.includes('$')) {
+    const basePath = routePath.split('/').filter(part => !part.includes('$')).join('/');
+    return pathname.startsWith(basePath) && pathname !== basePath;
+  }
+  // Otherwise, do exact match
+  return pathname === routePath;
+}
+
 export function Navigation() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
   const [showMore, setShowMore] = useState(false);
   const [showMobile, setShowMobile] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [lab, setLab] = useState<{ name: string; registrationNumber: string | null } | null>(null);
+
+  useEffect(() => {
+    const fetchLabInfo = async () => {
+      try {
+        const result = await getLabInfo();
+        if (result.success && result.data) {
+          setLab({
+            name: result.data.name,
+            registrationNumber: result.data.registrationNumber,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching lab info:', error);
+      }
+    };
+
+    if (user?.labId) {
+      fetchLabInfo();
+    }
+  }, [user?.labId]);
 
   const handleLogout = async () => {
     try {
@@ -46,15 +80,19 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">L</span>
+            <Button 
+              className="flex items-center gap-3 hover:bg-white cursor-pointer bg-transparent border-none p-0"
+              onClick={() => navigate({ to: '/lab-management' })}
+              type="button"
+            >
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">G</span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-gray-900">Lab Management</h1>
+                <h1 className="text-lg font-bold text-gray-900">Globpathology</h1>
                 <p className="text-xs text-gray-500">Professional Healthcare Lab</p>
               </div>
-            </div>
+            </Button>
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-1">
@@ -64,7 +102,7 @@ export function Navigation() {
                     <div key={item.to} className="relative">
                       <Button
                         onClick={() => setShowMore((v) => !v)}
-                        className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md flex items-center gap-1 hover:bg-blue-700"
+                        className="px-4 py-2 text-sm font-semibold rounded-md flex items-center gap-1"
                       >
                         {item.label}
                         <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} />
@@ -84,11 +122,6 @@ export function Navigation() {
                               🏥 Lab Details
                             </DropdownButton>
                           )}
-                          <div className="border-t border-gray-300 my-2" />
-                          <DropdownButton onClick={() => { setShowMore(false); handleLogout(); }} danger>
-                            <LogOut className="w-4 h-4 mr-2 inline" />
-                            Logout
-                          </DropdownButton>
                         </div>
                       )}
                     </div>
@@ -98,7 +131,7 @@ export function Navigation() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    active={location.pathname === item.to}
+                    active={isRouteActive(location.pathname, item.to)}
                   >
                     {item.label}
                   </NavLink>
@@ -106,12 +139,36 @@ export function Navigation() {
               })}
             </div>
 
-            {/* User Info */}
-            <div className="hidden lg:flex items-center gap-4">
-              <div className="text-right pr-4 border-r border-gray-200">
-                <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-                <div className="text-xs text-gray-500 capitalize">{user?.role}</div>
-              </div>
+            {/* User Avatar & Dropdown */}
+            <div className="hidden lg:flex items-center gap-4 relative">
+              <Button
+                type="button"
+                onClick={() => setShowUserMenu((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setShowUserMenu((v) => !v);
+                  }
+                }}
+                className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:bg-gray-800 transition-colors"
+                title={user?.name}
+              >
+                {user?.name?.charAt(0).toUpperCase()}
+              </Button>
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border-2 border-gray-300 rounded-lg shadow-2xl py-2 z-50 top-full">
+                  <div className="px-4 py-2 border-b border-gray-200">
+                    <div className="text-sm font-semibold text-gray-900">{user?.name}</div>
+                    <div className="text-xs text-gray-500 capitalize">{user?.role}</div>
+                  </div>
+                  <Button
+                    onClick={() => { setShowUserMenu(false); handleLogout(); }}
+                    className="w-full text-left px-4 bg-white py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -127,12 +184,14 @@ export function Navigation() {
 
       {/* Lab Info Bar */}
       {isLabManagementPage && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+        <div className="bg-linear-to-r from-blue-50 to-indigo-50 border-b border-blue-200 sticky top-16 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-gray-900">Lab Information</p>
-                <p className="text-xs text-gray-600">Name: Your Laboratory | Registration: LAB-12345</p>
+                <p className="text-xs text-gray-600">
+                  Name: {lab?.name || 'Loading...'} | Registration: {lab?.registrationNumber || 'N/A'}
+                </p>
               </div>
             </div>
           </div>
@@ -148,7 +207,7 @@ export function Navigation() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setShowMobile(false)}
-                active={location.pathname === item.to}
+                active={isRouteActive(location.pathname, item.to)}
               >
                 {item.label}
               </NavLink>
@@ -185,10 +244,10 @@ function NavLink({ to, active, children, onClick }: { to: string; active?: boole
   return (
     <Button
       onClick={() => { onClick?.(); navigate({ to }); }}
-      className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+      className={`px-4 py-2 text-sm font-semibold rounded-md hover:bg-white hover:text-inherit ${
         active 
-          ? 'bg-blue-600 text-white shadow-md' 
-          : 'text-gray-900 bg-gray-100'
+          ? 'bg-white text-blue-600' 
+          : 'bg-white text-black'
       }`}
     >
       {children}

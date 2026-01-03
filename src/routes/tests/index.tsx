@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/lib/toast';
 import {
   calculateTestPrice,
   createTest,
@@ -14,7 +15,6 @@ import {
   updateTest,
 } from '@/routes/apis/test-apis';
 import { getAllTestParameters } from '@/routes/apis/test-parameter-apis';
-import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute('/tests/')({
   component: TestManagement,
@@ -335,7 +335,7 @@ function TestManagement() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-6 w-fit">
         {/* Header */}
         <div className="bg-white border border-gray-300 mb-4 p-4">
           <div className="flex justify-between items-center">
@@ -484,7 +484,7 @@ function TestManagement() {
                               {paramNames || '-'}
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <button
+                              <Button
                                 onClick={() => {
                                   setSelectedTest(test);
                                   const paramIds = (test.metadata as any)?.parameterIds || [];
@@ -516,13 +516,13 @@ function TestManagement() {
                                 className="text-blue-600 hover:text-blue-800 mr-3 inline"
                               >
                                 <Edit className="w-4 h-4" />
-                              </button>
-                              <button
+                              </Button>
+                              <Button
                                 onClick={() => onDeleteTest(test.id)}
                                 className="text-red-600 hover:text-red-800 inline"
                               >
                                 <Trash2 className="w-4 h-4" />
-                              </button>
+                              </Button>
                             </td>
                           </tr>
                         );

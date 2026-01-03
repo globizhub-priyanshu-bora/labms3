@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Building2, Mail, Phone, MapPin, FileText } from 'lucide-react';
+import { Building2, FileText, Mail, MapPin, Phone } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 export const Route = createFileRoute('/lab-details/')({
   component: LabDetails,
@@ -30,7 +31,7 @@ function LabDetails() {
 
   return (
     <Layout requiredRole="admin">
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-6 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Lab Details</h1>
@@ -50,34 +51,34 @@ function LabDetails() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     Laboratory Name
-                  </label>
+                  </Label>
                   <p className="text-lg text-gray-900 font-semibold">{labData.name}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     Registration Number
-                  </label>
+                  </Label>
                   <p className="text-lg text-gray-900 font-semibold">
                     {labData.registrationNumber}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     License Number
-                  </label>
+                  </Label>
                   <p className="text-lg text-gray-900 font-semibold">
                     {labData.licenseNumber}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     License Expiry Date
-                  </label>
+                  </Label>
                   <p className="text-lg text-gray-900 font-semibold">
                     {new Date(labData.licenseExpiryDate).toLocaleDateString()}
                   </p>
@@ -128,30 +129,30 @@ function LabDetails() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     City
-                  </label>
+                  </Label>
                   <p className="text-gray-900">{labData.city}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     State
-                  </label>
+                  </Label>
                   <p className="text-gray-900">{labData.state}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     Country
-                  </label>
+                  </Label>
                   <p className="text-gray-900">{labData.country}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Label className="block text-sm font-medium text-gray-700 mb-1">
                     Zip Code
-                  </label>
+                  </Label>
                   <p className="text-gray-900">{labData.zipCode}</p>
                 </div>
               </div>

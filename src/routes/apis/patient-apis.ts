@@ -617,18 +617,18 @@ export const bulkDeletePatients = createServerFn({ method: 'POST' })
         }
       }
 
-      // Step 5: Delete bills linked to these patients
-      if (billIds.length > 0) {
-        await db
-          .delete(billSchema)
-          .where(inArray(billSchema.patientId, data.ids));
-      }
-
-      // Step 6: Delete patient tests
+      // Step 5: Delete patient tests BEFORE bills (patient tests may reference bills)
       if (patientTestIds.length > 0) {
         await db
           .delete(patientTestsSchema)
           .where(inArray(patientTestsSchema.patientId, data.ids));
+      }
+
+      // Step 6: Delete bills linked to these patients
+      if (billIds.length > 0) {
+        await db
+          .delete(billSchema)
+          .where(inArray(billSchema.patientId, data.ids));
       }
 
       // Hard delete patients from database

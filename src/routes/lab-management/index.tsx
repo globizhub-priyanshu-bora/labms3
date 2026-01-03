@@ -1,12 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Edit, FileText, Filter, FlaskConical, RefreshCw, Search, Trash2, Users, UserPlus, X, TrendingUp, Calendar } from 'lucide-react';
+import { Calendar, Edit, FileText, Filter, RefreshCw, Search, Trash2, TrendingUp, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { bulkDeletePatients, getAllPatients, updatePatient } from '@/routes/apis/patient-apis';
-import { getAllBills } from '@/routes/apis/bill-apis';
 import { toast } from '@/lib/toast';
+import { bulkDeletePatients, getAllPatients, updatePatient } from '@/routes/apis/patient-apis';
 
 export const Route = createFileRoute('/lab-management/')({
   component: () => (
@@ -60,6 +59,20 @@ interface EditPatientFormData {
   pincode?: number;
 }
 
+const StatCard = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => (
+  <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${color}`}>
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-gray-600 font-medium">{label}</p>
+        <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+      </div>
+      <div className={`p-3 rounded-lg ${color.split(' ')[0]} bg-opacity-10`}>
+        <Icon className={`w-6 h-6 ${color.split(' ')[1]}`} />
+      </div>
+    </div>
+  </div>
+);
+
 function LabManagement() {
   const initialData = Route.useLoaderData();
   const navigate = useNavigate();
@@ -72,6 +85,7 @@ function LabManagement() {
   const [activeFilters, setActiveFilters] = useState<Partial<FilterFormData>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const [filterForm, setFilterForm] = useState<FilterFormData>({
     searchQuery: '',
@@ -303,9 +317,10 @@ function LabManagement() {
       return;
     }
 
-    const confirmMsg = `Are you sure you want to delete ${selectedPatients.length} patient(s)? This action cannot be undone.`;
-    if (!confirm(confirmMsg)) return;
+    setShowDeleteConfirmation(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       const result = await bulkDeletePatients({
         data: { ids: selectedPatients }
@@ -316,12 +331,18 @@ function LabManagement() {
         setPatients(updatedPatients);
         setFilteredPatients(updatedPatients);
         setSelectedPatients([]);
-        alert(result.message);
+        toast.success(result.message);
+        setShowDeleteConfirmation(false);
       }
     } catch (error) {
       console.error('Error deleting patients:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to delete patients');
+      setShowDeleteConfirmation(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
   };
 
   const hasActiveFilters = Object.values(activeFilters).some(v => v && v !== '');
@@ -893,6 +914,34 @@ function LabManagement() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Patients</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete {selectedPatients.length} patient(s)? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={cancelDelete}
+                className="flex-1 px-4 py-2 bg-gray-300 text-gray-900 hover:bg-gray-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}
